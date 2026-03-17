@@ -24,36 +24,46 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Expõe funções para o código global
-window._db = db;
-window._col = () => collection(db, 'auditorias');
+function toFirestore(rec){
+  const obj = {};
+  for(const k in rec){
+    if(k === '_docId') continue;
+    const v = rec[k];
+    obj[k] = (v === undefined) ? null : v;
+  }
+  return obj;
+}
+
 window._fbSave = async (rec) => {
-  if(rec.id && rec._docId) {
-    await setDoc(doc(db,'auditorias', rec._docId), sanitize(rec));
+  const data = toFirestore(rec);
+  if(rec._docId){
+    await setDoc(doc(db, 'auditorias', rec._docId), data);
   } else {
-    const ref = await addDoc(collection(db,'auditorias'), sanitize(rec));
+    const ref = await addDoc(collection(db, 'auditorias'), data);
     return ref.id;
   }
 };
+
 window._fbDelete = async (docId) => {
-  if(!docId || typeof docId !== 'string' || docId.trim()==='') throw new Error('ID invalido: '+docId);
-  await deleteDoc(doc(db,'auditorias', docId.trim()));
+  console.log('_fbDelete chamado com:', docId);
+  if(!docId || docId === 'null' || docId === 'undefined'){
+    throw new Error('ID invalido: ' + docId);
+  }
+  await deleteDoc(doc(db, 'auditorias', docId));
 };
+
 window._fbListen = (cb) => {
-  const q = query(collection(db,'auditorias'), orderBy('created','desc'));
+  const q = query(collection(db, 'auditorias'), orderBy('created', 'desc'));
   return onSnapshot(q, snap => {
-    const rows = snap.docs.map(d => { const data = d.data(); data._docId = d.id; return data; });
+    const rows = snap.docs.map(d => {
+      const obj = d.data();
+      obj._docId = d.id;
+      return obj;
+    });
+    console.log('Firebase retornou', rows.length, 'docs, primeiro _docId:', rows[0]?._docId);
     cb(rows);
   });
 };
-
-function sanitize(obj){
-  const clean = JSON.parse(JSON.stringify(obj));
-  delete clean._docId;
-  // garante que campos undefined viram null
-  Object.keys(clean).forEach(k => { if(clean[k]===undefined) clean[k]=null; });
-  return clean;
-}
 
 window._firebaseReady = true;
 document.dispatchEvent(new Event('firebase-ready'));

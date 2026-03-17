@@ -36,12 +36,13 @@ window._fbSave = async (rec) => {
   }
 };
 window._fbDelete = async (docId) => {
-  await deleteDoc(doc(db,'auditorias', docId));
+  if(!docId || typeof docId !== 'string' || docId.trim()==='') throw new Error('ID invalido: '+docId);
+  await deleteDoc(doc(db,'auditorias', docId.trim()));
 };
 window._fbListen = (cb) => {
   const q = query(collection(db,'auditorias'), orderBy('created','desc'));
   return onSnapshot(q, snap => {
-    const rows = snap.docs.map(d => ({...d.data(), _docId: d.id}));
+    const rows = snap.docs.map(d => { const data = d.data(); data._docId = d.id; return data; });
     cb(rows);
   });
 };
@@ -49,6 +50,8 @@ window._fbListen = (cb) => {
 function sanitize(obj){
   const clean = JSON.parse(JSON.stringify(obj));
   delete clean._docId;
+  // garante que campos undefined viram null
+  Object.keys(clean).forEach(k => { if(clean[k]===undefined) clean[k]=null; });
   return clean;
 }
 
@@ -716,11 +719,12 @@ function startEdit(id){
 
 // ============ DELETE ============
 function askDelete(docId){
-  if(!docId || docId==='undefined'){
+  console.log('askDelete chamado com docId:', docId, typeof docId);
+  if(!docId || docId==='undefined' || docId==='null' || docId.trim()===''){
     showToast('Erro: auditoria sem ID. Recarregue a página.','error');
     return;
   }
-  deleteDocId=docId;
+  deleteDocId=docId.trim();
   document.getElementById('modal-del').classList.add('open');
 }
 function closeModal(){ document.getElementById('modal-del').classList.remove('open'); deleteDocId=null; }

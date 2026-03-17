@@ -636,7 +636,7 @@ function renderHist(){
       <td style="display:flex;gap:5px;align-items:center">
         <button class="btn-sm" onclick="viewAudit('${r.id}')">Ver</button>
         <button class="btn-sm" onclick="startEdit('${r.id}')">Editar</button>
-        <button class="btn-sm danger" onclick="askDelete('${r._docId}')">✕</button>
+        <button class="btn-sm danger" data-docid="${r._docId}" onclick="askDelete(this.dataset.docid)">✕</button>
       </td>`;
     body.appendChild(tr);
   });
@@ -715,15 +715,34 @@ function startEdit(id){
 }
 
 // ============ DELETE ============
-function askDelete(docId){ deleteDocId=docId; document.getElementById('modal-del').classList.add('open'); }
+function askDelete(docId){
+  if(!docId || docId==='undefined'){
+    showToast('Erro: auditoria sem ID. Recarregue a página.','error');
+    return;
+  }
+  deleteDocId=docId;
+  document.getElementById('modal-del').classList.add('open');
+}
 function closeModal(){ document.getElementById('modal-del').classList.remove('open'); deleteDocId=null; }
 async function confirmDelete(){
+  if(!deleteDocId || deleteDocId==='undefined'){
+    showToast('Erro: ID inválido.','error');
+    closeModal();
+    return;
+  }
   closeModal();
   showSaving(true);
   try {
     await window._fbDelete(deleteDocId);
     showToast('Excluída com sucesso.','success');
-  } catch(e){ showToast('Erro ao excluir.','error'); }
+  } catch(e){
+    console.error('Erro ao excluir:', e);
+    if(e.code==='permission-denied'){
+      showToast('Sem permissão. Verifique as regras do Firebase.','error');
+    } else {
+      showToast('Erro ao excluir: '+e.message,'error');
+    }
+  }
   showSaving(false);
 }
 

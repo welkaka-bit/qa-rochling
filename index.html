@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>QA Processo Röchling</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, addDoc, setDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCODyWgWDJishfoE4f8zk9_XRy7Zap9mKY",
+  authDomain: "qa-rochling-76c8e.firebaseapp.com",
+  projectId: "qa-rochling-76c8e",
+  storageBucket: "qa-rochling-76c8e.firebasestorage.app",
+  messagingSenderId: "981552986228",
+  appId: "1:981552986228:web:e7b7485c8360685c903921"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Expõe funções para o código global
+window._db = db;
+window._col = () => collection(db, 'auditorias');
+window._fbSave = async (rec) => {
+  if(rec.id && rec._docId) {
+    await setDoc(doc(db,'auditorias', rec._docId), sanitize(rec));
+  } else {
+    const ref = await addDoc(collection(db,'auditorias'), sanitize(rec));
+    return ref.id;
+  }
+};
+window._fbDelete = async (docId) => {
+  await deleteDoc(doc(db,'auditorias', docId));
+};
+window._fbListen = (cb) => {
+  const q = query(collection(db,'auditorias'), orderBy('created','desc'));
+  return onSnapshot(q, snap => {
+    const rows = snap.docs.map(d => ({...d.data(), _docId: d.id}));
+    cb(rows);
+  });
+};
+
+function sanitize(obj){
+  const clean = JSON.parse(JSON.stringify(obj));
+  delete clean._docId;
+  return clean;
+}
+
+window._firebaseReady = true;
+document.dispatchEvent(new Event('firebase-ready'));
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f0;--card:#fff;--border:rgba(0,0,0,0.08);
+  --text:#1a1a18;--muted:#73726c;--hint:#b4b2a9;
+  --green:#1D9E75;--gbg:#E1F5EE;--gdk:#0F6E56;
+  --amber:#BA7517;--abg:#FAEEDA;
+  --red:#A32D2D;--rbg:#FCEBEB;
+  --blue:#185FA5;--bbg:#E6F1FB;
+  --ff:'IBM Plex Sans',sans-serif;--fm:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--ff);background:var(--bg);color:var(--text);min-height:100vh}
+button{font-family:var(--ff);cursor:pointer}
+input,select,textarea{font-family:var(--ff)}
+
+/* CONNECTING OVERLAY */
+#connecting{position:fixed;inset:0;background:rgba(15,26,18,.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#connecting .spin{width:36px;height:36px;border:3px solid rgba(29,158,117,.3);border-top-color:#1D9E75;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#connecting p{color:rgba(255,255,255,.7);font-size:13px;font-family:var(--fm)}
+#connecting .logo-txt{color:#fff;font-size:16px;font-weight:500;margin-bottom:4px}
+#connecting .sub-txt{color:rgba(255,255,255,.4);font-size:11px;font-family:var(--fm);letter-spacing:1px}
+
+/* HEADER */
+.hdr{background:#0f1a12;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(255,255,255,.06)}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.hdr-logo{width:34px;height:34px;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.3);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.hdr-logo svg{width:18px;height:18px}
+.hdr-title{color:#fff;font-size:14px;font-weight:500}
+.hdr-sub{color:rgba(255,255,255,.4);font-size:10px;font-family:var(--fm);letter-spacing:1px;margin-top:1px}
+.nav{display:flex;gap:2px}
+.nav-btn{background:none;border:none;padding:6px 12px;border-radius:6px;font-size:12px;color:rgba(255,255,255,.45);transition:.15s;font-family:var(--fm);letter-spacing:.3px}
+.nav-btn:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-btn.active{background:rgba(29,158,117,.2);color:var(--green);border:1px solid rgba(29,158,117,.3)}
+.badge-live{display:flex;align-items:center;gap:5px;background:rgba(29,158,117,.12);border:1px solid rgba(29,158,117,.25);border-radius:4px;padding:4px 9px;font-size:10px;font-family:var(--fm);color:var(--green)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MOBILE NAV */
+@media(max-width:600px){
+  .nav .nav-btn span{display:none}
+  .nav-btn{padding:6px 10px;font-size:11px}
+  .hdr-sub{display:none}
+}
+
+/* LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:18px 16px}
+.page{display:none}.page.active{display:block}
+
+/* CARDS */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:680px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;overflow:hidden;transition:transform .15s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi.blue::after{background:var(--blue)}.kpi.green::after{background:var(--green)}
+.kpi.red::after{background:#E24B4A}.kpi.amber::after{background:var(--amber)}
+.kpi-lbl{font-size:10px;font-family:var(--fm);color:var(--hint);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.kpi-val{font-size:24px;font-weight:500;font-family:var(--fm);line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.row2{display:grid;grid-template-columns:1.4fr 1fr;gap:12px;margin-bottom:16px}
+.row3{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:680px){.row2,.row3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card-title{font-size:12px;font-weight:500;margin-bottom:2px}
+.card-desc{font-size:11px;color:var(--muted);margin-bottom:12px}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-family:var(--fm)}
+.leg-sq{width:8px;height:8px;border-radius:2px}
+.ch{position:relative;width:100%}
+
+/* HISTORY */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
+.htbl th{padding:9px 10px;text-align:left;font-size:10px;font-family:var(--fm);color:var(--hint);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
+.htbl td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.htbl tr:last-child td{border-bottom:none}
+.htbl tr:hover td{background:#fafaf8}
+.pill{display:inline-block;font-size:10px;font-family:var(--fm);padding:3px 7px;border-radius:3px;white-space:nowrap}
+.p-ok{background:var(--gbg);color:var(--gdk)}.p-fail{background:var(--rbg);color:var(--red)}
+.p-prog{background:var(--bbg);color:var(--blue)}.p-warn{background:var(--abg);color:var(--amber)}
+.btn-sm{padding:5px 10px;border-radius:6px;font-size:11px;border:1px solid var(--border);background:var(--card);color:var(--text);transition:.15s;white-space:nowrap}
+.btn-sm:hover{background:var(--bg)}
+.btn-sm.danger{border-color:#fca5a5;color:var(--red)}.btn-sm.danger:hover{background:var(--rbg)}
+
+/* FORM */
+.form-header{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px}
+.form-header-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:560px){.form-header-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-family:var(--fm);color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
+.field input,.field select{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:.15s;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--green);background:#fff}
+.section-block{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.section-hdr{padding:12px 16px;background:#f9f8f4;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.section-num{width:22px;height:22px;border-radius:5px;background:#0f1a12;color:#fff;font-size:10px;font-family:var(--fm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.section-title{font-size:13px;font-weight:500}
+.subsection{padding:0 16px}
+.subsection-title{font-size:11px;font-family:var(--fm);color:var(--muted);letter-spacing:.5px;text-transform:uppercase;padding:10px 0 6px;border-top:1px solid var(--border);margin-top:2px}
+.subsection:first-of-type .subsection-title{border-top:none}
+.item-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.04);gap:10px}
+.item-row:last-of-type{border-bottom:none}
+.item-name{flex:1;font-size:13px;color:var(--text);line-height:1.4}
+.toggle-group{display:flex;gap:3px;flex-shrink:0}
+.tog{padding:6px 11px;border-radius:6px;font-size:11px;font-family:var(--fm);border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;transition:.15s;user-select:none;-webkit-tap-highlight-color:transparent}
+.tog:active{transform:scale(.95)}
+.tog.ok.sel{background:var(--gbg);color:var(--gdk);border-color:#9FE1CB}
+.tog.nok.sel{background:var(--rbg);color:var(--red);border-color:#F7C1C1}
+.tog.na.sel{background:var(--bbg);color:var(--blue);border-color:#B5D4F4}
+.obs-row{display:none;padding-bottom:10px}
+.obs-row.visible{display:block}
+.obs-inp{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);resize:none;outline:none}
+.obs-inp:focus{border-color:var(--amber);background:#fff}
+.scrap-area{padding:14px 16px}
+.scrap-area textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);resize:vertical;outline:none;min-height:80px}
+.scrap-area textarea:focus{border-color:var(--green);background:#fff}
+.progress-bar{background:#f1efe8;border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s ease}
+.progress-lbl{font-size:11px;font-family:var(--fm);color:var(--muted);margin-bottom:5px}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap}
+.btn-primary{padding:10px 22px;background:#0f1a12;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;transition:.15s}
+.btn-primary:hover{background:#1a2e1f}
+.btn-primary.green{background:var(--green)}.btn-primary.green:hover{background:var(--gdk)}
+.btn-secondary{padding:10px 18px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:13px;transition:.15s}
+.btn-secondary:hover{background:var(--bg)}
+.btn-new{padding:8px 16px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:6px;transition:.15s}
+.btn-new:hover{background:var(--gdk)}
+.btn-export{padding:8px 14px;background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:12px;font-family:var(--fm);display:flex;align-items:center;gap:6px;transition:.15s}
+.btn-export:hover{background:var(--bg)}
+.page-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.page-top-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.page-title{font-size:15px;font-weight:500}
+.search-inp{padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);outline:none;width:200px}
+.search-inp:focus{border-color:var(--green);background:#fff}
+@media(max-width:500px){.search-inp{width:130px}}
+
+/* DETAIL */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:500px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
+.sum-box{background:var(--bg);border-radius:8px;padding:12px;text-align:center}
+.sum-val{font-size:20px;font-weight:500;font-family:var(--fm)}
+.sum-lbl{font-size:10px;color:var(--muted);font-family:var(--fm);margin-top:3px}
+.detail-section{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.detail-section-hdr{padding:11px 16px;background:#f9f8f4;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px}
+.detail-item{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 16px;border-bottom:1px solid rgba(0,0,0,.04);font-size:13px;gap:10px}
+.detail-item:last-child{border-bottom:none}
+.detail-obs{font-size:11px;color:var(--amber);margin-top:3px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--card);border-radius:14px;padding:22px;max-width:400px;width:100%}
+.modal-title{font-size:15px;font-weight:500;margin-bottom:6px}
+.modal-desc{font-size:13px;color:var(--muted);margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;padding:11px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:.3s;max-width:280px;left:auto}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--green);color:#fff}
+.toast.error{background:#E24B4A;color:#fff}
+@media(max-width:500px){.toast{left:16px;right:16px;bottom:16px}}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty svg{width:48px;height:48px;margin-bottom:12px;opacity:.3}
+.empty p{font-size:14px}
+
+/* SAVING INDICATOR */
+.saving{display:none;position:fixed;top:70px;right:16px;background:#0f1a12;color:rgba(255,255,255,.8);font-size:11px;font-family:var(--fm);padding:6px 12px;border-radius:6px;z-index:300;align-items:center;gap:6px}
+.saving.show{display:flex}
+.saving .spin-sm{width:12px;height:12px;border:2px solid rgba(255,255,255,.2);border-top-color:#1D9E75;border-radius:50%;animation:spin .6s linear infinite}
+
+/* FAB (mobile) */
+.fab{display:none;position:fixed;bottom:24px;right:20px;width:52px;height:52px;background:var(--green);border:none;border-radius:50%;color:#fff;font-size:24px;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(29,158,117,.4);z-index:100;transition:.2s}
+.fab:active{transform:scale(.92)}
+@media(max-width:600px){.fab{display:flex}}
+</style>
+</head>
+<body>
+
+<!-- CONNECTING -->
+<div id="connecting">
+  <div class="logo-txt">QA Processo Röchling</div>
+  <div class="sub-txt">COLETOR TSI 1.0 PL7</div>
+  <div class="spin"></div>
+  <p>Conectando ao Firebase...</p>
+</div>
+
+<!-- SAVING -->
+<div class="saving" id="saving"><div class="spin-sm"></div>Salvando...</div>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-logo">
+      <svg viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="16" height="16" rx="3" stroke="#1D9E75" stroke-width="1.5"/>
+        <path d="M5 10.5L8 13.5L15 7" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="hdr-title">QA Röchling</div>
+      <div class="hdr-sub">TSI 1.0 PL7</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="goPage('dash')"><span>Dashboard</span></button>
+    <button class="nav-btn" onclick="goPage('hist')"><span>Histórico</span></button>
+    <button class="nav-btn" onclick="goPage('nova')"><span>+ Nova</span></button>
+  </div>
+  <div class="badge-live"><div class="live-dot"></div>LIVE</div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dash" class="page active">
+    <div class="kpis" id="kpis"></div>
+    <div class="row2">
+      <div class="card">
+        <div class="card-title">Tendência — aprovação vs falhas</div>
+        <div class="card-desc">Por data de auditoria</div>
+        <div class="legend">
+          <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>Aprovadas</div>
+          <div class="leg"><div class="leg-sq" style="background:#E24B4A"></div>Reprovadas</div>
+        </div>
+        <div class="ch" style="height:170px"><canvas id="trendChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Distribuição por status</div>
+        <div class="card-desc">Todas as auditorias</div>
+        <div class="ch" style="height:150px;display:flex;align-items:center;justify-content:center;position:relative">
+          <canvas id="donutChart"></canvas>
+          <div style="position:absolute;text-align:center;pointer-events:none">
+            <div id="donut-pct" style="font-size:20px;font-weight:500;font-family:var(--fm)">—</div>
+            <div style="font-size:10px;color:var(--muted);font-family:var(--fm)">PASS RATE</div>
+          </div>
+        </div>
+        <div class="legend" id="donut-leg" style="justify-content:center;margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="row3">
+      <div class="card">
+        <div class="card-title">Auditorias por turno</div>
+        <div class="card-desc">OK vs NOK</div>
+        <div class="ch" style="height:150px"><canvas id="turnoChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top falhas</div>
+        <div class="card-desc">Itens NOK mais frequentes</div>
+        <div id="failList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO -->
+  <div id="page-hist" class="page">
+    <div class="page-top">
+      <div class="page-title">Histórico</div>
+      <div class="page-top-r">
+        <input class="search-inp" id="searchInp" placeholder="Buscar..." oninput="renderHist()"/>
+        <button class="btn-export" onclick="exportXLSX()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 10v3a1 1 0 001 1h10a1 1 0 001-1v-3M8 2v8M5 8l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          XLSX
+        </button>
+        <button class="btn-new" onclick="goPage('nova')">+ Nova</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="tbl-wrap">
+        <table class="htbl">
+          <thead><tr>
+            <th>#</th><th>Data</th><th>Inspetor</th><th>Turno</th>
+            <th>OK</th><th>NOK</th><th>Score</th><th>Status</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="histBody"></tbody>
+        </table>
+      </div>
+      <div id="hist-empty" class="empty" style="display:none">
+        <svg viewBox="0 0 48 48" fill="none"><rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" stroke-width="2"/><path d="M16 18h16M16 24h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <p>Nenhuma auditoria ainda.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVA / EDITAR -->
+  <div id="page-nova" class="page">
+    <div class="page-top">
+      <div class="page-title" id="form-page-title">Nova Auditoria</div>
+      <button class="btn-secondary" onclick="cancelForm()">Cancelar</button>
+    </div>
+    <div class="form-header">
+      <div class="form-header-grid">
+        <div class="field"><label>Inspetor</label><input id="f-insp" type="text" placeholder="Nome completo" autocomplete="name"/></div>
+        <div class="field"><label>Data</label><input id="f-data" type="date"/></div>
+        <div class="field"><label>Turno</label>
+          <select id="f-turno">
+            <option value="1">Turno 1</option>
+            <option value="2">Turno 2</option>
+            <option value="3">Turno 3</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="progress-lbl" id="prog-lbl">0 / 0 itens respondidos</div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div id="checklist-form"></div>
+    <div class="section-block">
+      <div class="section-hdr"><div class="section-num">5</div><div class="section-title">Scrap / Diário de Bordo</div></div>
+      <div class="scrap-area"><textarea id="f-scrap" rows="3" placeholder="Registre ocorrências, scrap e ações tomadas..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="saveForm('rascunho')">Salvar Rascunho</button>
+      <button class="btn-primary green" onclick="saveForm('concluida')">✓ Concluir Auditoria</button>
+    </div>
+  </div>
+
+  <!-- DETALHE -->
+  <div id="page-detail" class="page">
+    <div class="page-top">
+      <div class="page-title">Detalhes</div>
+      <div class="page-top-r">
+        <button class="btn-secondary" onclick="goPage('hist')">← Voltar</button>
+        <button class="btn-export" onclick="exportDetailXLSX()">Exportar XLSX</button>
+        <button class="btn-primary" onclick="editCurrent()" style="background:#0f1a12">Editar</button>
+      </div>
+    </div>
+    <div id="detail-content"></div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- FAB mobile -->
+<button class="fab" onclick="goPage('nova')" title="Nova Auditoria">+</button>
+
+<!-- MODAL DELETE -->
+<div class="modal-overlay" id="modal-del">
+  <div class="modal">
+    <div class="modal-title">Excluir auditoria?</div>
+    <div class="modal-desc">Esta ação não pode ser desfeita.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" style="background:#E24B4A" onclick="confirmDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ CHECKLIST STRUCTURE ============
+const CHECKLIST = [
+  { sec: '1) Liberação de Produção', sub: '', items: [
+    'FER completa e disponível',
+    'Check-List Liberação de Produção OK',
+    'Instrução de Trabalho Disponível',
+    'Operadores Treinados?',
+    'Liberação de PY (Solda PCV)',
+    'Liberação de PY (Solda Cemas)',
+    'Liberação de PY (Buchas e Estanqueidade)',
+    'Parametros de Processo (PCV)',
+    'Parametros de Processo (Solda Cemas)',
+    'Parametros de Processo (Buchas+Estanqueidade)',
+  ]},
+  { sec: '2) Verificação dos Poka Yokes', sub: 'a) Solda PCV', items: ['Sem Membrana','PCV Obstruído','Membrana Furada','Altura da Solda']},
+  { sec: '', sub: 'b) Solda Cemas', items: ['Presença do LIP Lado Esquerdo','Presença do LIP Lado Direito','Posição LIP Esquerdo','Posição LIP Direito','LIP Invertido Esquerdo','LIP Invertido Direito']},
+  { sec: '', sub: 'c) Montagem Buchas / Estanqueidade', items: ['Verificação das Buchas (5x)','Estanqueidade Conjunto Vedação+Sensor','Estanqueidade Carcaça']},
+  { sec: '3) Auditoria de Produto', sub: 'a) Embalagem', items: ['Identificação (Etiqueta Branca)','Status (Identificação Amarela/Verde)','Limpeza externa Embalagem','Limpeza interna da Embalagem','Limpeza Colméias','Limpeza Divisórias']},
+  { sec: '', sub: 'b) Aspecto visual Produto', items: ['Isenta de Rebarbas','Presença do Sensor','Presença das Buchas / Sem Rebarbas sobre a bucha','Presença/Qualidade da Junta Preta (CAC)','Presença/Qualidade das Juntas Verde (Admissão)','Presença dos Pinos Guia','Sensor Correto (xxxxxx)']},
+  { sec: '', sub: 'c) Dimensional', items: ['Calibrador Tubo AKF (Externo)','Calibrador Tubo AKF (Interno)','Calibrador TUBO AKF (Anel Trava)','Calibrador Furos fixação Corpo Borboleta (3x)','Calibrador furação CAC (8x)','Calibrador Alojamento CAC (1x)','Calibrador Localizador Corpo Borboleta']},
+  { sec: '', sub: 'd) Testes de Qualidade', items: ['Teste Borracheiro','Teste Estouro','Arrancamento PCV (Min 190)']},
+  { sec: '4) Auditoria de Processo', sub: 'a) Segurança', items: ['Fios expostos','Paineis abertos','Uso de EPI (todos os Colaboradores)','Tapete segurança']},
+  { sec: '', sub: 'b) Qualidade', items: ['Ordem de produção única disponível ?','Etiquetas de Identificação corretas (sem excesso)','Inspeção Hora a Hora executada adequadamente','Operador Explica ponto a ponto o que inspecionou','Marcas de checagem conforme instrução']},
+];
+
+// ============ STATE ============
+let DB = [];
+let currentId = null;
+let deleteDocId = null;
+let trendChart = null, donutChart = null, turnoChart = null;
+let unsubscribe = null;
+
+function itemKey(name){ return name.replace(/[^a-zA-Z0-9]/g,'_').toLowerCase().substring(0,40); }
+function fmtDate(d){ if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; }
+
+// ============ FIREBASE INIT ============
+document.addEventListener('firebase-ready', () => {
+  document.getElementById('connecting').style.display = 'none';
+  startListen();
+});
+
+function startListen(){
+  if(unsubscribe) unsubscribe();
+  unsubscribe = window._fbListen(rows => {
+    DB = rows;
+    renderDash();
+    renderHist();
+  });
+}
+
+// ============ NAVIGATION ============
+function goPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  const map = {dash:0,hist:1,nova:2};
+  if(map[p]!==undefined) document.querySelectorAll('.nav-btn')[map[p]].classList.add('active');
+  if(p==='nova' && !currentId) initNewForm();
+  window.scrollTo(0,0);
+}
+
+// ============ FORM ============
+function initNewForm(){
+  currentId = null;
+  document.getElementById('form-page-title').textContent = 'Nova Auditoria';
+  document.getElementById('f-insp').value = '';
+  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-turno').value = '1';
+  document.getElementById('f-scrap').value = '';
+  buildChecklist({});
+}
+
+function buildChecklist(answers){
+  const wrap = document.getElementById('checklist-form');
+  wrap.innerHTML = '';
+  let secNum = 0;
+  let currentBlock = null;
+
+  CHECKLIST.forEach(group => {
+    if(group.sec){
+      secNum++;
+      currentBlock = document.createElement('div');
+      currentBlock.className = 'section-block';
+      const hdr = document.createElement('div');
+      hdr.className = 'section-hdr';
+      hdr.innerHTML = `<div class="section-num">${secNum}</div><div class="section-title">${group.sec}</div>`;
+      currentBlock.appendChild(hdr);
+      wrap.appendChild(currentBlock);
+    }
+
+    if(group.sub && currentBlock){
+      const sub = document.createElement('div');
+      sub.className = 'subsection';
+      sub.innerHTML = `<div class="subsection-title">${group.sub}</div>`;
+      group.items.forEach(item => {
+        const key = itemKey(item);
+        const val = answers[key]||'';
+        const obs = answers[key+'_obs']||'';
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <div class="item-row">
+            <div class="item-name">${item}</div>
+            <div class="toggle-group">
+              <span class="tog ok ${val==='ok'?'sel':''}" data-key="${key}" data-val="ok">OK</span>
+              <span class="tog nok ${val==='nok'?'sel':''}" data-key="${key}" data-val="nok">NOK</span>
+              <span class="tog na ${val==='na'?'sel':''}" data-key="${key}" data-val="na">N/A</span>
+            </div>
+          </div>
+          <div class="obs-row ${val==='nok'?'visible':''}" id="obs-${key}">
+            <textarea class="obs-inp" id="obsinp-${key}" rows="2" placeholder="Observação...">${obs}</textarea>
+          </div>`;
+        sub.appendChild(div);
+      });
+      currentBlock.appendChild(sub);
+    }
+  });
+
+  // Event delegation
+  wrap.addEventListener('click', e => {
+    const tog = e.target.closest('.tog');
+    if(!tog) return;
+    const key = tog.dataset.key;
+    const val = tog.dataset.val;
+    const group = tog.closest('.toggle-group');
+    group.querySelectorAll('.tog').forEach(t=>t.classList.remove('sel'));
+    tog.classList.add('sel');
+    const obsRow = document.getElementById('obs-'+key);
+    if(obsRow) obsRow.classList.toggle('visible', val==='nok');
+    updateProgress();
+  });
+
+  updateProgress();
+}
+
+function updateProgress(){
+  const togs = document.querySelectorAll('#checklist-form .toggle-group');
+  let total=togs.length, answered=0;
+  togs.forEach(g=>{ if(g.querySelector('.tog.sel')) answered++; });
+  const pct = total ? Math.round(answered/total*100) : 0;
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-lbl').textContent = `${answered} / ${total} itens respondidos`;
+}
+
+function collectAnswers(){
+  const ans = {};
+  document.querySelectorAll('#checklist-form .toggle-group').forEach(group => {
+    const sel = group.querySelector('.tog.sel');
+    if(!sel) return;
+    const key = sel.dataset.key;
+    ans[key] = sel.dataset.val;
+    const obsEl = document.getElementById('obsinp-'+key);
+    if(obsEl && obsEl.value.trim()) ans[key+'_obs'] = obsEl.value.trim();
+  });
+  return ans;
+}
+
+async function saveForm(status){
+  const insp = document.getElementById('f-insp').value.trim();
+  const data = document.getElementById('f-data').value;
+  if(!insp||!data){ showToast('Preencha inspetor e data.','error'); return; }
+
+  const answers = collectAnswers();
+  const allItems = CHECKLIST.flatMap(g=>g.items);
+  let ok=0,nok=0,na=0;
+  allItems.forEach(item=>{
+    const v=answers[itemKey(item)];
+    if(v==='ok') ok++; else if(v==='nok') nok++; else if(v==='na') na++;
+  });
+
+  const rec = {
+    id: currentId || Date.now().toString(),
+    insp, data,
+    turno: document.getElementById('f-turno').value,
+    status, answers,
+    scrap: document.getElementById('f-scrap').value.trim(),
+    ok, nok, na,
+    total: allItems.length,
+    score: ok+nok>0 ? Math.round(ok/(ok+nok)*100) : null,
+    created: new Date().toISOString()
+  };
+
+  // Attach docId if editing
+  if(currentId){
+    const existing = DB.find(r=>r.id===currentId);
+    if(existing) rec._docId = existing._docId;
+  }
+
+  showSaving(true);
+  try {
+    await window._fbSave(rec);
+    showToast(status==='concluida'?'Auditoria concluída!':'Rascunho salvo.','success');
+    currentId = null;
+    goPage('hist');
+  } catch(e){
+    showToast('Erro ao salvar. Verifique a conexão.','error');
+    console.error(e);
+  }
+  showSaving(false);
+}
+
+function cancelForm(){ currentId=null; goPage('hist'); }
+
+// ============ HISTORY ============
+function renderHist(){
+  const q=(document.getElementById('searchInp')?.value||'').toLowerCase();
+  const list = DB.filter(r=>
+    r.insp?.toLowerCase().includes(q)||r.data?.includes(q)||('turno '+r.turno).includes(q)
+  );
+  const body = document.getElementById('histBody');
+  body.innerHTML='';
+  document.getElementById('hist-empty').style.display = list.length?'none':'block';
+  list.forEach((r,i)=>{
+    const scoreColor = r.score>=80?'var(--green)':r.score>=60?'var(--amber)':'#E24B4A';
+    const statusPill = r.status==='concluida'
+      ? (r.score>=80?`<span class="pill p-ok">${r.score}% OK</span>`:`<span class="pill p-fail">${r.score??'—'}% NOK</span>`)
+      : `<span class="pill p-prog">Rascunho</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:var(--hint);font-family:var(--fm)">${list.length-i}</td>
+      <td style="font-family:var(--fm);white-space:nowrap">${fmtDate(r.data)}</td>
+      <td style="font-weight:500">${r.insp}</td>
+      <td>T${r.turno}</td>
+      <td style="color:var(--green);font-family:var(--fm)">${r.ok}</td>
+      <td style="color:#E24B4A;font-family:var(--fm)">${r.nok}</td>
+      <td style="font-family:var(--fm);color:${scoreColor}">${r.score!=null?r.score+'%':'—'}</td>
+      <td>${statusPill}</td>
+      <td style="display:flex;gap:5px;align-items:center">
+        <button class="btn-sm" onclick="viewAudit('${r.id}')">Ver</button>
+        <button class="btn-sm" onclick="startEdit('${r.id}')">Editar</button>
+        <button class="btn-sm danger" onclick="askDelete('${r._docId}')">✕</button>
+      </td>`;
+    body.appendChild(tr);
+  });
+}
+
+// ============ DETAIL ============
+function viewAudit(id){
+  const r = DB.find(x=>x.id===id);
+  if(!r) return;
+  currentId = id;
+  const wrap = document.getElementById('detail-content');
+  const scoreColor = r.score>=80?'var(--green)':r.score>=60?'var(--amber)':'#E24B4A';
+
+  let html = `
+    <div class="summary-grid">
+      <div class="sum-box"><div class="sum-val" style="color:var(--blue)">${r.total}</div><div class="sum-lbl">Total</div></div>
+      <div class="sum-box"><div class="sum-val" style="color:var(--green)">${r.ok}</div><div class="sum-lbl">OK</div></div>
+      <div class="sum-box"><div class="sum-val" style="color:#E24B4A">${r.nok}</div><div class="sum-lbl">NOK</div></div>
+      <div class="sum-box"><div class="sum-val" style="color:${scoreColor}">${r.score!=null?r.score+'%':'—'}</div><div class="sum-lbl">Score</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:13px">
+        <div><span style="color:var(--muted);font-size:10px;font-family:var(--fm)">INSPETOR</span><br/><strong>${r.insp}</strong></div>
+        <div><span style="color:var(--muted);font-size:10px;font-family:var(--fm)">DATA</span><br/><strong>${fmtDate(r.data)}</strong></div>
+        <div><span style="color:var(--muted);font-size:10px;font-family:var(--fm)">TURNO</span><br/><strong>Turno ${r.turno}</strong></div>
+      </div>
+    </div>`;
+
+  let secNum=0;
+  let openSection=false;
+  CHECKLIST.forEach(group=>{
+    if(group.sec){
+      if(openSection) html+='</div>';
+      secNum++;
+      html+=`<div class="detail-section"><div class="detail-section-hdr">
+        <span style="background:#0f1a12;color:#fff;width:20px;height:20px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--fm)">${secNum}</span>
+        ${group.sec}</div>`;
+      openSection=true;
+    }
+    if(group.sub) html+=`<div style="padding:6px 16px 0;font-size:10px;font-family:var(--fm);color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-top:1px solid var(--border);margin-top:4px;padding-top:8px">${group.sub}</div>`;
+    group.items.forEach(item=>{
+      const key=itemKey(item);
+      const v=r.answers?.[key];
+      const obs=r.answers?.[key+'_obs']||'';
+      const badge=v==='ok'?`<span class="pill p-ok">OK</span>`:v==='nok'?`<span class="pill p-fail">NOK</span>`:v==='na'?`<span class="pill p-prog">N/A</span>`:`<span style="font-size:11px;color:var(--hint)">—</span>`;
+      html+=`<div class="detail-item"><div style="flex:1"><div>${item}</div>${obs?`<div class="detail-obs">↳ ${obs}</div>`:''}</div>${badge}</div>`;
+    });
+  });
+  if(openSection) html+='</div>';
+
+  if(r.scrap) html+=`<div class="detail-section"><div class="detail-section-hdr">Scrap / Diário de Bordo</div><div style="padding:14px 16px;font-size:13px;color:var(--muted)">${r.scrap}</div></div>`;
+
+  wrap.innerHTML=html;
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-detail').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function editCurrent(){ if(currentId) startEdit(currentId); }
+
+function startEdit(id){
+  const r=DB.find(x=>x.id===id);
+  if(!r) return;
+  currentId=id;
+  document.getElementById('form-page-title').textContent='Editar Auditoria';
+  document.getElementById('f-insp').value=r.insp;
+  document.getElementById('f-data').value=r.data;
+  document.getElementById('f-turno').value=r.turno;
+  document.getElementById('f-scrap').value=r.scrap||'';
+  buildChecklist(r.answers||{});
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-nova').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ============ DELETE ============
+function askDelete(docId){ deleteDocId=docId; document.getElementById('modal-del').classList.add('open'); }
+function closeModal(){ document.getElementById('modal-del').classList.remove('open'); deleteDocId=null; }
+async function confirmDelete(){
+  closeModal();
+  showSaving(true);
+  try {
+    await window._fbDelete(deleteDocId);
+    showToast('Excluída com sucesso.','success');
+  } catch(e){ showToast('Erro ao excluir.','error'); }
+  showSaving(false);
+}
+
+// ============ DASHBOARD ============
+function renderDash(){
+  const total=DB.length;
+  const conc=DB.filter(r=>r.status==='concluida');
+  const ok=conc.filter(r=>r.score>=80).length;
+  const passRate=conc.length?Math.round(ok/conc.length*100):0;
+  const totalNok=DB.reduce((s,r)=>s+(r.nok||0),0);
+  const prog=DB.filter(r=>r.status!=='concluida').length;
+
+  document.getElementById('kpis').innerHTML=`
+    <div class="kpi blue"><div class="kpi-lbl">Total</div><div class="kpi-val">${total}</div><div class="kpi-sub">auditorias</div></div>
+    <div class="kpi green"><div class="kpi-lbl">Aprovação</div><div class="kpi-val">${passRate}%</div><div class="kpi-sub">${conc.length} concluídas</div></div>
+    <div class="kpi red"><div class="kpi-lbl">Itens NOK</div><div class="kpi-val">${totalNok}</div><div class="kpi-sub">não conformidades</div></div>
+    <div class="kpi amber"><div class="kpi-lbl">Rascunhos</div><div class="kpi-val">${prog}</div><div class="kpi-sub">em andamento</div></div>`;
+
+  // Trend
+  const byDate={};
+  DB.forEach(r=>{
+    if(!byDate[r.data]) byDate[r.data]={ok:0,nok:0};
+    if(r.score>=80) byDate[r.data].ok++; else byDate[r.data].nok++;
+  });
+  const dates=Object.keys(byDate).sort().slice(-10);
+  const tOk=dates.map(d=>byDate[d].ok);
+  const tNok=dates.map(d=>byDate[d].nok);
+  const labels=dates.map(d=>fmtDate(d));
+
+  if(trendChart) trendChart.destroy();
+  trendChart=new Chart(document.getElementById('trendChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Aprovadas',data:tOk,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.1)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#1D9E75',borderWidth:2},
+      {label:'Reprovadas',data:tNok,borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,.07)',tension:.4,fill:true,pointRadius:3,pointBackgroundColor:'#E24B4A',borderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#73726c',font:{family:'IBM Plex Mono',size:10},maxRotation:30}},
+      y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#73726c',font:{family:'IBM Plex Mono',size:10}},min:0}
+    }}
+  });
+
+  // Donut
+  const nok_=conc.filter(r=>r.score<80).length;
+  document.getElementById('donut-pct').textContent=passRate+'%';
+  document.getElementById('donut-leg').innerHTML=`
+    <div class="leg"><div class="leg-sq" style="background:#1D9E75"></div>OK ${ok}</div>
+    <div class="leg"><div class="leg-sq" style="background:#E24B4A"></div>NOK ${nok_}</div>
+    <div class="leg"><div class="leg-sq" style="background:#BA7517"></div>Rascunho ${prog}</div>`;
+  if(donutChart) donutChart.destroy();
+  donutChart=new Chart(document.getElementById('donutChart'),{
+    type:'doughnut',
+    data:{datasets:[{data:[ok,nok_,prog],backgroundColor:['#1D9E75','#E24B4A','#BA7517'],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false}}}
+  });
+
+  // Turno
+  const byTurno={1:{ok:0,nok:0},2:{ok:0,nok:0},3:{ok:0,nok:0}};
+  DB.forEach(r=>{ byTurno[r.turno]&&(byTurno[r.turno].ok+=r.ok||0,byTurno[r.turno].nok+=r.nok||0); });
+  if(turnoChart) turnoChart.destroy();
+  turnoChart=new Chart(document.getElementById('turnoChart'),{
+    type:'bar',
+    data:{
+      labels:['Turno 1','Turno 2','Turno 3'],
+      datasets:[
+        {label:'OK',data:[byTurno[1].ok,byTurno[2].ok,byTurno[3].ok],backgroundColor:'#1D9E75',borderRadius:4,borderSkipped:false},
+        {label:'NOK',data:[byTurno[1].nok,byTurno[2].nok,byTurno[3].nok],backgroundColor:'#E24B4A',borderRadius:4,borderSkipped:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{stacked:true,grid:{display:false},ticks:{color:'#73726c',font:{family:'IBM Plex Mono',size:10}}},
+      y:{stacked:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{color:'#73726c',font:{family:'IBM Plex Mono',size:10}}}
+    }}
+  });
+
+  // Top falhas
+  const freq={};
+  DB.forEach(r=>{ if(!r.answers) return;
+    CHECKLIST.forEach(g=>g.items.forEach(item=>{
+      const k=itemKey(item);
+      if(r.answers[k]==='nok') freq[item]=(freq[item]||0)+1;
+    }));
+  });
+  const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxF=sorted[0]?.[1]||1;
+  const failEl=document.getElementById('failList');
+  failEl.innerHTML=sorted.length?sorted.map(([name,cnt])=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
+      <div style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div>
+      <div style="flex:1.5;height:6px;background:#f1efe8;border-radius:3px;overflow:hidden">
+        <div style="width:${Math.round(cnt/maxF*100)}%;height:100%;background:#E24B4A;border-radius:3px"></div>
+      </div>
+      <div style="font-size:11px;font-family:var(--fm);color:var(--muted);min-width:18px;text-align:right">${cnt}</div>
+    </div>`).join('')
+  :'<div style="font-size:12px;color:var(--hint);text-align:center;padding:18px 0">Sem falhas registradas</div>';
+}
+
+// ============ EXPORT ============
+function exportXLSX(){
+  if(!DB.length){ showToast('Sem dados para exportar.','error'); return; }
+  const rows=[['#','Data','Inspetor','Turno','Total','OK','NOK','Score','Status']];
+  DB.forEach((r,i)=>rows.push([i+1,r.data,r.insp,'Turno '+r.turno,r.total,r.ok,r.nok,r.score!=null?r.score+'%':'—',r.status==='concluida'?'Concluída':'Rascunho']));
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:4},{wch:12},{wch:22},{wch:10},{wch:8},{wch:6},{wch:6},{wch:8},{wch:12}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Auditorias');
+  XLSX.writeFile(wb,'QA_Rochling_Historico.xlsx');
+  showToast('Exportado!','success');
+}
+
+function exportDetailXLSX(){
+  const r=DB.find(x=>x.id===currentId);
+  if(!r) return;
+  const rows=[['QA Processo Röchling — Coletor TSI 1.0 PL7'],
+    ['Inspetor:',r.insp,'','Data:',r.data,'','Turno:','Turno '+r.turno],
+    [],['Item','Resultado','Observação']];
+  CHECKLIST.forEach(g=>{
+    if(g.sec) rows.push([g.sec]);
+    if(g.sub) rows.push(['  '+g.sub]);
+    g.items.forEach(item=>{
+      const k=itemKey(item);
+      const v=(r.answers?.[k]||'—').toUpperCase();
+      rows.push(['    '+item,v,r.answers?.[k+'_obs']||'']);
+    });
+  });
+  rows.push([],['Score:',r.score!=null?r.score+'%':'—','','OK:',r.ok,'NOK:',r.nok]);
+  if(r.scrap) rows.push([],['Scrap/Observações:',r.scrap]);
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:50},{wch:10},{wch:40}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Auditoria');
+  XLSX.writeFile(wb,`QA_${r.insp}_${r.data}.xlsx`);
+  showToast('Exportado!','success');
+}
+
+// ============ UI HELPERS ============
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+function showSaving(v){ document.getElementById('saving').classList.toggle('show',v); }
+</script>
+</body>
+</html>

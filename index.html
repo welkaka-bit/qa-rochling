@@ -412,7 +412,7 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
     <div class="modal-desc">Esta ação não pode ser desfeita.</div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
-      <button class="btn-primary" style="background:#E24B4A" onclick="confirmDelete()">Excluir</button>
+      <button id="btn-confirm-del" class="btn-primary" style="background:#E24B4A" onclick="confirmDelete()">Excluir</button>
     </div>
   </div>
 </div>
@@ -732,19 +732,25 @@ function startEdit(id){
 function askDeleteByIdx(idx){
   const rec = DB[idx];
   if(!rec){ showToast('Auditoria não encontrada.','error'); return; }
-  console.log('Excluindo registro:', rec.id, '| _docId:', rec._docId);
-  deleteDocId = rec._docId || null;
-  // fallback: busca pelo id interno
-  if(!deleteDocId){
-    showToast('ID do documento não encontrado. Tente recarregar a página.','error');
+  const docId = rec._docId;
+  console.log('askDeleteByIdx — idx:', idx, '_docId:', docId);
+  if(!docId || docId==='null' || docId==='undefined'){
+    showToast('ID não encontrado. Recarregue a página.','error');
     return;
   }
+  // guarda no botão confirmar do modal
+  document.getElementById('btn-confirm-del').setAttribute('data-docid', docId);
   document.getElementById('modal-del').classList.add('open');
 }
-function askDelete(docId){ /* legacy - não usado */ }
-function closeModal(){ document.getElementById('modal-del').classList.remove('open'); deleteDocId=null; }
+function askDelete(docId){ }
+function closeModal(){
+  document.getElementById('modal-del').classList.remove('open');
+  document.getElementById('btn-confirm-del').removeAttribute('data-docid');
+}
 async function confirmDelete(){
-  if(!deleteDocId){
+  const docId = document.getElementById('btn-confirm-del').getAttribute('data-docid');
+  console.log('confirmDelete — docId:', docId);
+  if(!docId || docId==='null'){
     showToast('Erro: ID inválido.','error');
     closeModal();
     return;
@@ -752,7 +758,7 @@ async function confirmDelete(){
   closeModal();
   showSaving(true);
   try {
-    await window._fbDelete(deleteDocId);
+    await window._fbDelete(docId);
     showToast('Excluída com sucesso.','success');
   } catch(e){
     console.error('Erro ao excluir:', e);

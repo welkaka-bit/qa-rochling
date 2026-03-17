@@ -622,6 +622,7 @@ function renderHist(){
   body.innerHTML='';
   document.getElementById('hist-empty').style.display = list.length?'none':'block';
   list.forEach((r,i)=>{
+    const dbIdx = DB.indexOf(r);
     const scoreColor = r.score>=80?'var(--green)':r.score>=60?'var(--amber)':'#E24B4A';
     const statusPill = r.status==='concluida'
       ? (r.score>=80?`<span class="pill p-ok">${r.score}% OK</span>`:`<span class="pill p-fail">${r.score??'—'}% NOK</span>`)
@@ -637,9 +638,9 @@ function renderHist(){
       <td style="font-family:var(--fm);color:${scoreColor}">${r.score!=null?r.score+'%':'—'}</td>
       <td>${statusPill}</td>
       <td style="display:flex;gap:5px;align-items:center">
-        <button class="btn-sm" onclick="viewAudit('${r.id}')">Ver</button>
-        <button class="btn-sm" onclick="startEdit('${r.id}')">Editar</button>
-        <button class="btn-sm danger" data-docid="${r._docId}" onclick="askDelete(this.dataset.docid)">✕</button>
+        <button class="btn-sm" data-idx="${dbIdx}" onclick="viewAudit(DB[parseInt(this.dataset.idx)].id)">Ver</button>
+        <button class="btn-sm" data-idx="${dbIdx}" onclick="startEdit(DB[parseInt(this.dataset.idx)].id)">Editar</button>
+        <button class="btn-sm danger" data-idx="${dbIdx}" onclick="askDeleteByIdx(parseInt(this.dataset.idx))">✕</button>
       </td>`;
     body.appendChild(tr);
   });
@@ -718,18 +719,22 @@ function startEdit(id){
 }
 
 // ============ DELETE ============
-function askDelete(docId){
-  console.log('askDelete chamado com docId:', docId, typeof docId);
-  if(!docId || docId==='undefined' || docId==='null' || docId.trim()===''){
-    showToast('Erro: auditoria sem ID. Recarregue a página.','error');
+function askDeleteByIdx(idx){
+  const rec = DB[idx];
+  if(!rec){ showToast('Auditoria não encontrada.','error'); return; }
+  console.log('Excluindo registro:', rec.id, '| _docId:', rec._docId);
+  deleteDocId = rec._docId || null;
+  // fallback: busca pelo id interno
+  if(!deleteDocId){
+    showToast('ID do documento não encontrado. Tente recarregar a página.','error');
     return;
   }
-  deleteDocId=docId.trim();
   document.getElementById('modal-del').classList.add('open');
 }
+function askDelete(docId){ /* legacy - não usado */ }
 function closeModal(){ document.getElementById('modal-del').classList.remove('open'); deleteDocId=null; }
 async function confirmDelete(){
-  if(!deleteDocId || deleteDocId==='undefined'){
+  if(!deleteDocId){
     showToast('Erro: ID inválido.','error');
     closeModal();
     return;

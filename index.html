@@ -510,10 +510,10 @@ function buildChecklist(answers){
       wrap.appendChild(currentBlock);
     }
 
-    if(group.sub && currentBlock){
+    if(currentBlock){
       const sub = document.createElement('div');
       sub.className = 'subsection';
-      sub.innerHTML = `<div class="subsection-title">${group.sub}</div>`;
+      if(group.sub) sub.innerHTML = `<div class="subsection-title">${group.sub}</div>`;
       group.items.forEach(item => {
         const key = itemKey(item);
         const val = answers[key]||'';

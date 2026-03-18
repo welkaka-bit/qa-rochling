@@ -534,6 +534,12 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
         <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </span>
     </button>
+    <button class="nav-btn" onclick="goPage('qrcode')">
+      <span class="nav-full">QR Code</span>
+      <span class="nav-short" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="3" y="3" width="2" height="2" fill="currentColor"/><rect x="11" y="3" width="2" height="2" fill="currentColor"/><rect x="3" y="11" width="2" height="2" fill="currentColor"/><path d="M10 10h2v2h-2zM12 12h2v2h-2zM10 12h1v1h-1z" fill="currentColor"/></svg>
+      </span>
+    </button>
   </div>
   <div class="badge-live"><div class="live-dot"></div>LIVE</div>
 </div>
@@ -704,6 +710,72 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
       </div>
     </div>
     <div id="detail-content"></div>
+  </div>
+
+
+  <!-- ===== QR CODE ===== -->
+  <div id="page-qrcode" class="page">
+    <div style="max-width:420px;margin:0 auto;padding:8px 0">
+
+      <!-- Card principal QR -->
+      <div class="card" style="text-align:center;margin-bottom:14px">
+        <div style="margin-bottom:14px">
+          <div style="font-size:15px;font-weight:500;margin-bottom:4px">Acesse pelo celular</div>
+          <div style="font-size:12px;color:var(--muted)">Aponte a câmera para o QR Code abaixo</div>
+        </div>
+
+        <!-- QR Code box -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;display:inline-block;margin-bottom:14px">
+          <div id="qr-canvas"></div>
+        </div>
+
+        <!-- URL -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;font-family:var(--fm);color:var(--muted);margin-bottom:14px;word-break:break-all">
+          welkaka-bit.github.io/qa-rochling
+        </div>
+
+        <!-- Botões -->
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn-export" onclick="baixarQRCode()" style="border-color:var(--border)">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 10v3a1 1 0 001 1h10a1 1 0 001-1v-3M8 2v8M5 8l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Baixar PNG
+          </button>
+          <button class="btn-export" onclick="imprimirQRCode()" style="border-color:#1D9E75;color:#1D9E75">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 6V2h8v4M4 12H2a1 1 0 01-1-1V7a1 1 0 011-1h12a1 1 0 011 1v4a1 1 0 01-1 1h-2M4 10h8v5H4v-5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Imprimir
+          </button>
+        </div>
+      </div>
+
+      <!-- Instruções -->
+      <div class="card" style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:500;margin-bottom:10px">Como usar</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:24px;height:24px;background:#E1F5EE;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-family:var(--fm);color:#0F6E56;font-weight:500">1</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5">Imprima o QR Code e cole na linha de produção, quadro de gestão ou na entrada do turno</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:24px;height:24px;background:#E1F5EE;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-family:var(--fm);color:#0F6E56;font-weight:500">2</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5">O inspetor aponta a câmera do celular — abre direto no navegador, sem instalar nada</div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <div style="width:24px;height:24px;background:#E1F5EE;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-family:var(--fm);color:#0F6E56;font-weight:500">3</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.5">Preenche a auditoria no celular — os dados sincronizam em tempo real com o dashboard</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card cartaz para imprimir -->
+      <div class="card">
+        <div style="font-size:12px;font-weight:500;margin-bottom:4px">Cartaz para a fábrica</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Clique para imprimir um cartaz A4 pronto para colar na parede</div>
+        <button class="btn-primary green" style="width:100%;padding:11px;font-size:13px" onclick="imprimirCartaz()">
+          Imprimir Cartaz A4
+        </button>
+      </div>
+
+    </div>
   </div>
 
 </div><!-- /main -->
@@ -1565,6 +1637,140 @@ function showToast(msg,type='success'){
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 function showSaving(v){ document.getElementById('saving').classList.toggle('show',v); }
+</script>
+
+<!-- QR Code library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const QR_URL = 'https://welkaka-bit.github.io/qa-rochling';
+let qrGenerated = false;
+
+function initQR(){
+  if(qrGenerated) return;
+  const el = document.getElementById('qr-canvas');
+  if(!el) return;
+  el.innerHTML = '';
+  new QRCode(el, {
+    text: QR_URL,
+    width: 220,
+    height: 220,
+    colorDark: '#0f1a12',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  qrGenerated = true;
+}
+
+function getQRCanvas(){
+  return new Promise(resolve => {
+    initQR();
+    setTimeout(() => {
+      const canvas = document.querySelector('#qr-canvas canvas');
+      resolve(canvas);
+    }, 400);
+  });
+}
+
+async function baixarQRCode(){
+  const canvas = await getQRCanvas();
+  if(!canvas){ showToast('QR Code não gerado ainda.','error'); return; }
+  const a = document.createElement('a');
+  a.download = 'QA-Rochling-QRCode.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  showToast('QR Code baixado!','success');
+}
+
+async function imprimirQRCode(){
+  const canvas = await getQRCanvas();
+  if(!canvas){ showToast('Aguarde o QR Code carregar.','error'); return; }
+  const img = canvas.toDataURL('image/png');
+  abrirJanelaImpressao(img, false);
+}
+
+async function imprimirCartaz(){
+  const canvas = await getQRCanvas();
+  if(!canvas){ showToast('Aguarde o QR Code carregar.','error'); return; }
+  const img = canvas.toDataURL('image/png');
+  abrirJanelaImpressao(img, true);
+}
+
+function abrirJanelaImpressao(img, cartaz){
+  const win = window.open('','_blank','width=700,height=900');
+  const hoje = new Date().toLocaleDateString('pt-BR');
+
+  if(cartaz){
+    win.document.write(`<!DOCTYPE html><html><head><title>Cartaz QA Röchling</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'Segoe UI',Arial,sans-serif;background:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh}
+      .cartaz{width:190mm;min-height:270mm;border:3px solid #0f1a12;border-radius:12px;padding:28px 32px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px}
+      .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+      .logo-box{width:48px;height:48px;background:#0f1a12;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+      .logo-box svg{width:28px;height:28px}
+      .empresa{font-size:22px;font-weight:700;color:#0f1a12;text-align:left}
+      .produto{font-size:11px;color:#73726c;letter-spacing:1px;text-align:left;margin-top:2px}
+      .divider{width:100%;height:2px;background:#0f1a12;border-radius:2px}
+      .chamada{font-size:28px;font-weight:700;color:#0f1a12;line-height:1.2;margin:4px 0}
+      .sub-chamada{font-size:14px;color:#73726c;line-height:1.5}
+      .qr-box{background:#fff;border:2px solid #0f1a12;border-radius:12px;padding:20px;margin:8px 0}
+      .qr-box img{width:200px;height:200px;display:block}
+      .url-box{background:#f5f4f0;border:1px solid #d0d0d0;border-radius:8px;padding:10px 16px;font-family:monospace;font-size:13px;color:#0f1a12;font-weight:500;word-break:break-all}
+      .instrucao{font-size:12px;color:#73726c;line-height:1.6;max-width:380px}
+      .steps{display:flex;flex-direction:column;gap:8px;width:100%;text-align:left;max-width:380px}
+      .step{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#73726c}
+      .step-num{width:22px;height:22px;background:#0f1a12;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+      .footer{font-size:10px;color:#b4b2a9;margin-top:auto;padding-top:8px;border-top:1px solid #e0e0e0;width:100%}
+      @media print{@page{size:A4;margin:8mm}body{margin:0}}
+    </style></head><body>
+    <div class="cartaz">
+      <div class="logo-row">
+        <div class="logo-box"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="3" stroke="white" stroke-width="1.5"/><path d="M5 10.5L8 13.5L15 7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div><div class="empresa">Röchling Automotive</div><div class="produto">COLETOR TSI 1.0 PL7 · CONTROLE DE QUALIDADE</div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="chamada">Registre sua Auditoria</div>
+      <div class="sub-chamada">Escaneie o QR Code com a câmera do celular<br/>e preencha o checklist de qualidade</div>
+      <div class="qr-box"><img src="${img}" alt="QR Code QA"/></div>
+      <div class="url-box">welkaka-bit.github.io/qa-rochling</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div>Abra a câmera do celular e aponte para o QR Code</div>
+        <div class="step"><div class="step-num">2</div>Clique no link que aparecer na tela</div>
+        <div class="step"><div class="step-num">3</div>Preencha a auditoria — os dados salvam automaticamente</div>
+      </div>
+      <div class="footer">Sistema QA Digital · Röchling Automotive · Emitido em ${hoje}</div>
+    </div>
+    </body></html>`);
+  } else {
+    win.document.write(`<!DOCTYPE html><html><head><title>QR Code QA Röchling</title>
+    <style>
+      body{font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#fff}
+      .box{text-align:center;border:2px solid #0f1a12;border-radius:12px;padding:24px 28px}
+      h2{font-size:16px;color:#0f1a12;margin:0 0 4px}
+      p{font-size:11px;color:#73726c;margin:0 0 14px;font-family:monospace}
+      img{width:200px;height:200px;display:block;margin:0 auto 14px}
+      .url{font-size:11px;font-family:monospace;background:#f5f4f0;padding:6px 10px;border-radius:6px}
+      .tip{font-size:10px;color:#b4b2a9;margin-top:10px}
+      @media print{@page{margin:10mm}}
+    </style></head><body>
+    <div class="box">
+      <h2>QA Processo Röchling</h2>
+      <p>Coletor TSI 1.0 PL7</p>
+      <img src="${img}" alt="QR Code"/>
+      <div class="url">welkaka-bit.github.io/qa-rochling</div>
+      <div class="tip">Aponte a câmera do celular para acessar o sistema</div>
+    </div></body></html>`);
+  }
+  win.document.close();
+  setTimeout(() => win.print(), 500);
+}
+
+// Inicializa QR ao entrar na página
+const _goPageOrig = goPage;
+window.goPage = function(p){
+  _goPageOrig(p);
+  if(p === 'qrcode') setTimeout(initQR, 100);
+};
 </script>
 </body>
 </html>

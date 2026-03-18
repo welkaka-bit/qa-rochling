@@ -318,6 +318,174 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 }
 .print-only{display:none}
 .laudo-wrap{display:none}
+
+/* ===== MOBILE PORTRAIT OTIMIZADO ===== */
+@media(max-width:480px){
+
+  /* Header compacto */
+  .hdr{padding:8px 12px;height:auto;flex-wrap:nowrap;gap:8px}
+  .hdr-sub{display:none}
+  .hdr-title{font-size:13px}
+  .hdr-logo{width:30px;height:30px}
+  .hdr-logo svg{width:16px;height:16px}
+  .nav{gap:2px}
+  .nav-btn{padding:5px 8px;font-size:11px}
+  .badge-live{padding:3px 7px;font-size:9px}
+  .live-dot{width:5px;height:5px}
+
+  /* Layout geral */
+  .main{padding:10px 10px}
+
+  /* KPIs — 2 colunas compactas */
+  .kpis{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+  .kpi{padding:11px 12px;border-radius:10px}
+  .kpi-lbl{font-size:9px;margin-bottom:5px}
+  .kpi-val{font-size:22px}
+  .kpi-sub{font-size:10px;margin-top:3px}
+  .kpi-trend{font-size:9px;margin-top:3px}
+  .kpi-spark{height:20px;margin-top:5px}
+
+  /* Charts — 1 coluna */
+  .row2,.row3,.grid2,.grid3{grid-template-columns:1fr;gap:8px;margin-bottom:10px}
+  .card{padding:12px;border-radius:10px}
+  .card-title{font-size:12px}
+  .card-desc{font-size:10px;margin-bottom:8px}
+  .legend{gap:7px;margin-bottom:7px}
+  .leg{font-size:10px}
+  .leg-sq{width:7px;height:7px}
+
+  /* Filtros mobile */
+  .fbar,.filters{flex-direction:column;align-items:stretch;padding:8px 10px;gap:6px}
+  .f-sel,.fs{width:100%;padding:8px 10px;font-size:13px;border-radius:7px}
+  .f-clear,.fc{width:100%;padding:8px;text-align:center}
+  .f-count,.fn{text-align:center;margin:0}
+
+  /* Alerta mobile */
+  .alert,.nok-alert{padding:10px 12px}
+  .alert-title,.at{font-size:12px}
+  .alert-msg,.am{font-size:10px}
+
+  /* Page top */
+  .page-top{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px}
+  .page-top-r{width:100%;justify-content:flex-start;flex-wrap:wrap}
+  .page-title{font-size:14px}
+
+  /* Tabela histórico — scroll horizontal */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px}
+  table.htbl{min-width:500px;font-size:11px}
+  .htbl th{padding:7px 8px;font-size:9px}
+  .htbl td{padding:8px;font-size:11px}
+  .btn-sm{padding:4px 8px;font-size:10px}
+
+  /* Formulário mobile */
+  .form-header{padding:12px}
+  .form-header-grid{grid-template-columns:1fr;gap:10px}
+  .field label{font-size:11px}
+  .field input,.field select{padding:10px 11px;font-size:14px;border-radius:7px}
+
+  /* Checklist mobile */
+  .section-block{border-radius:10px;margin-bottom:10px}
+  .section-hdr{padding:10px 13px}
+  .section-num{width:22px;height:22px;font-size:10px}
+  .section-title{font-size:12px}
+  .subsection{padding:0 13px}
+  .subsection-title{font-size:10px;padding:8px 0 5px}
+  .item-row{padding:10px 0;gap:8px;flex-wrap:nowrap}
+  .item-name{font-size:12px;line-height:1.3;flex:1;min-width:0}
+  .toggle-group{flex-shrink:0;gap:3px}
+  .tog{padding:7px 10px;font-size:11px;border-radius:5px;min-width:38px;text-align:center}
+  .obs-inp{font-size:13px;padding:8px 10px}
+  .scrap-area{padding:10px 13px}
+  .scrap-area textarea{font-size:13px;min-height:70px}
+  .progress-lbl{font-size:11px}
+
+  /* Form actions mobile */
+  .form-actions{flex-direction:column;gap:8px}
+  .form-actions .btn-primary,
+  .form-actions .btn-secondary{width:100%;text-align:center;padding:12px;font-size:14px}
+
+  /* Detail mobile */
+  .summary-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .sum-val{font-size:18px}
+  .detail-item{font-size:12px;padding:8px 13px}
+  .detail-section-hdr{font-size:11px;padding:9px 13px}
+
+  /* Botões header detail */
+  .page-top-r .btn-secondary,
+  .page-top-r .btn-export,
+  .page-top-r .btn-primary{padding:7px 12px;font-size:11px}
+
+  /* FAB maior no mobile */
+  .fab{width:56px;height:56px;font-size:26px;bottom:20px;right:16px;display:flex}
+
+  /* Modal mobile */
+  .modal{padding:18px;margin:0 8px}
+  .modal-title{font-size:14px}
+  .modal-desc{font-size:12px}
+  .modal-actions{flex-direction:column;gap:8px}
+  .modal-actions button{width:100%;padding:11px;font-size:13px}
+
+  /* Toast mobile */
+  .toast{left:12px;right:12px;bottom:80px;font-size:12px}
+
+  /* Heatmap mobile */
+  .hm-cell{border-radius:2px}
+  .hm-lbl{font-size:8px}
+
+  /* Fail bars */
+  .fail-name{font-size:11px}
+  .fail-count,.fc2{font-size:10px}
+
+  /* Saving indicator */
+  .saving{top:60px;right:10px;font-size:10px;padding:5px 10px}
+
+  /* Connecting overlay */
+  #connecting .logo-txt{font-size:14px}
+  #connecting p{font-size:12px}
+}
+
+/* Tablets (481-768px) */
+@media(min-width:481px) and (max-width:768px){
+  .main{padding:14px}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .row2,.row3,.grid2,.grid3{grid-template-columns:1fr}
+  .form-header-grid{grid-template-columns:1fr 1fr}
+  .hdr-sub{display:none}
+}
+
+/* Fix input zoom no iOS — font-size mínimo 16px */
+@media(max-width:480px){
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea{font-size:16px!important}
+}
+
+@media(max-width:480px){
+  .nav-full{display:none!important}
+  .nav-short{display:inline-flex!important;align-items:center;justify-content:center}
+  .nav-btn{padding:7px 10px;min-width:36px}
+  .badge-live span{display:none}
+}
+
+@media(max-width:480px){
+  /* Charts maiores no mobile */
+  .ch[style*="height:170px"]{height:200px!important}
+  .ch[style*="height:160px"]{height:180px!important}
+  .ch[style*="height:150px"]{height:160px!important}
+  .ch[style*="height:220px"]{height:200px!important}
+  .ch[style*="height:190px"]{height:180px!important}
+  /* Score ring centralizado */
+  #scoreRing{margin:8px auto}
+  /* Heatmap menor no mobile */
+  .hm-grid{gap:2px}
+  .hm-days{gap:2px;margin-bottom:2px}
+  /* Ranking inspetores compacto */
+  .insp-row,.ir{gap:7px;margin-bottom:7px}
+  .insp-avatar,.iav{width:24px;height:24px;font-size:9px}
+  .insp-name,.in2{font-size:11px}
+  .insp-score,.isc{font-size:10px;min-width:28px}
+}
 </style>
 </head>
 <body>
@@ -348,9 +516,24 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
     </div>
   </div>
   <div class="nav">
-    <button class="nav-btn active" onclick="goPage('dash')"><span>Dashboard</span></button>
-    <button class="nav-btn" onclick="goPage('hist')"><span>Histórico</span></button>
-    <button class="nav-btn" onclick="goPage('nova')"><span>+ Nova</span></button>
+    <button class="nav-btn active" onclick="goPage('dash')">
+      <span class="nav-full">Dashboard</span>
+      <span class="nav-short" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </span>
+    </button>
+    <button class="nav-btn" onclick="goPage('hist')">
+      <span class="nav-full">Histórico</span>
+      <span class="nav-short" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+      </span>
+    </button>
+    <button class="nav-btn" onclick="goPage('nova')">
+      <span class="nav-full">+ Nova</span>
+      <span class="nav-short" style="display:none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </span>
+    </button>
   </div>
   <div class="badge-live"><div class="live-dot"></div>LIVE</div>
 </div>

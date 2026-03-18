@@ -250,19 +250,74 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 
 /* ===== PRINT LAUDO ===== */
 @media print {
-  body{background:#fff!important;color:#000!important}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important;color:#1a1a18!important;font-family:'IBM Plex Sans',sans-serif!important;font-size:11pt}
   .hdr,.nav,.fab,.saving,.toast,.modal-overlay,
   #page-dash,#page-hist,#page-nova,
-  .page-top-r .btn-secondary,
-  .page-top-r .btn-export,
-  .page-top-r .btn-primary{display:none!important}
+  .no-print{display:none!important}
   #page-detail{display:block!important}
   .print-only{display:block!important}
-  .no-print{display:none!important}
   .main{padding:0!important;max-width:100%!important}
-  @page{size:A4;margin:15mm 12mm}
+  #detail-content{display:none!important}
+  .page-top{display:none!important}
+  @page{size:A4 portrait;margin:18mm 15mm 15mm 15mm}
+  .laudo-wrap{display:block!important;max-width:100%;font-family:'IBM Plex Sans',sans-serif}
+  /* laudo header */
+  .lh{border-bottom:3px solid #0f1a12;margin-bottom:14px;padding-bottom:10px}
+  .lh-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+  .lh-logo{display:flex;align-items:center;gap:10px}
+  .lh-icon{width:40px;height:40px;background:#0f1a12;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .lh-title{font-size:16pt;font-weight:600;color:#0f1a12;line-height:1.2}
+  .lh-sub{font-size:8pt;color:#73726c;letter-spacing:.5px;margin-top:2px;font-family:'IBM Plex Mono',sans-serif}
+  .lh-doc{text-align:right;font-size:8pt;font-family:'IBM Plex Mono',sans-serif;color:#b4b2a9}
+  .lh-doc strong{display:block;font-size:10pt;color:#1a1a18}
+  /* meta grid */
+  .lmeta{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid #d0d0d0;border-radius:6px;overflow:hidden;margin-bottom:12px}
+  .lmeta-item{padding:8px 10px;border-right:1px solid #d0d0d0}
+  .lmeta-item:last-child{border-right:none}
+  .lmeta-label{font-size:7.5pt;text-transform:uppercase;letter-spacing:.6px;color:#b4b2a9;font-family:'IBM Plex Mono',sans-serif;margin-bottom:2px}
+  .lmeta-val{font-size:11pt;font-weight:500;color:#1a1a18}
+  /* score banner */
+  .lscore{display:flex;align-items:center;gap:16px;padding:10px 14px;border-radius:6px;margin-bottom:12px;border-left:5px solid}
+  .lscore-ok{background:#E1F5EE;border-color:#1D9E75}
+  .lscore-nok{background:#FCEBEB;border-color:#E24B4A}
+  .lscore-warn{background:#FAEEDA;border-color:#BA7517}
+  .lscore-num{font-size:26pt;font-weight:700;font-family:'IBM Plex Mono',sans-serif;line-height:1}
+  .lscore-info .ls-status{font-size:13pt;font-weight:600}
+  .lscore-info .ls-detail{font-size:9pt;color:#73726c;margin-top:3px}
+  .lscore-chips{margin-left:auto;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+  .lchip{font-size:8.5pt;font-family:'IBM Plex Mono',sans-serif;padding:2px 8px;border-radius:3px;font-weight:500}
+  .lchip-ok{background:#E1F5EE;color:#0F6E56}
+  .lchip-nok{background:#FCEBEB;color:#A32D2D}
+  .lchip-na{background:#E6F1FB;color:#185FA5}
+  /* obs box */
+  .lobs{background:#FAFAF8;border:1px solid #e8e0d0;border-left:4px solid #BA7517;border-radius:4px;padding:8px 10px;margin-bottom:12px;font-size:9pt;color:#633806;break-inside:avoid}
+  .lobs-title{font-size:7.5pt;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:4px;color:#BA7517;font-family:'IBM Plex Mono',sans-serif}
+  /* checklist */
+  .lsec{margin-bottom:10px;break-inside:avoid}
+  .lsec-title{font-size:9pt;font-weight:600;background:#0f1a12;color:#fff;padding:4px 10px;margin-bottom:0;display:flex;align-items:center;gap:6px;border-radius:4px 4px 0 0}
+  .lsec-num{background:rgba(255,255,255,.2);border-radius:3px;padding:1px 6px;font-family:'IBM Plex Mono',sans-serif;font-size:8pt}
+  .lsubsec{font-size:8pt;font-weight:600;color:#73726c;text-transform:uppercase;letter-spacing:.5px;background:#f9f8f4;padding:4px 10px;border-left:3px solid #d0d0d0;font-family:'IBM Plex Mono',sans-serif}
+  .litem{display:flex;align-items:flex-start;justify-content:space-between;padding:4px 10px;border-bottom:1px solid #f0ede8;gap:8px;font-size:9.5pt}
+  .litem:last-child{border-bottom:none}
+  .litem-name{flex:1;color:#1a1a18;line-height:1.3}
+  .litem-obs{font-size:8pt;color:#BA7517;margin-top:2px;font-style:italic}
+  .lbadge{font-size:7.5pt;font-family:'IBM Plex Mono',sans-serif;padding:2px 8px;border-radius:3px;font-weight:600;white-space:nowrap;flex-shrink:0}
+  .lb-ok{background:#E1F5EE;color:#0F6E56}
+  .lb-nok{background:#FCEBEB;color:#A32D2D}
+  .lb-na{background:#E6F1FB;color:#185FA5}
+  .lb-nd{background:#f1efe8;color:#b4b2a9}
+  .litem-nok-row{background:#fff9f9}
+  .litem-ok-obs{background:#f9fef9}
+  /* footer */
+  .lfooter{margin-top:20px;padding-top:10px;border-top:1.5px solid #0f1a12;display:flex;justify-content:space-between;align-items:flex-end;font-size:8pt;color:#b4b2a9}
+  .lfooter-left{font-size:8pt;color:#b4b2a9;line-height:1.6}
+  .lsign-row{display:flex;gap:32px}
+  .lsign{min-width:160px;text-align:center}
+  .lsign-line{border-top:1px solid #1a1a18;padding-top:4px;margin-top:20px;font-size:8pt;color:#73726c}
 }
 .print-only{display:none}
+.laudo-wrap{display:none}
 </style>
 </head>
 <body>
@@ -596,8 +651,8 @@ function buildChecklist(answers){
               <span class="tog na ${val==='na'?'sel':''}" data-key="${key}" data-val="na">N/A</span>
             </div>
           </div>
-          <div class="obs-row ${val==='nok'?'visible':''}" id="obs-${key}">
-            <textarea class="obs-inp" id="obsinp-${key}" rows="2" placeholder="Observação...">${obs}</textarea>
+          <div class="obs-row ${(val==='ok'||val==='nok')?'visible':''}" id="obs-${key}">
+            <textarea class="obs-inp" id="obsinp-${key}" rows="2" placeholder="Observação / evidência (opcional)...">${obs}</textarea>
           </div>`;
         sub.appendChild(div);
       });
@@ -615,7 +670,7 @@ function buildChecklist(answers){
     group.querySelectorAll('.tog').forEach(t=>t.classList.remove('sel'));
     tog.classList.add('sel');
     const obsRow = document.getElementById('obs-'+key);
-    if(obsRow) obsRow.classList.toggle('visible', val==='nok');
+    if(obsRow) obsRow.classList.toggle('visible', val==='ok' || val==='nok');
     updateProgress();
   });
 
@@ -1159,115 +1214,141 @@ function exportXLSX(){
 function imprimirLaudo(){
   const r = DB.find(x=>x.id===currentId);
   if(!r) return;
-
-  // Remove laudo anterior se existir
   const old = document.getElementById('laudo-print');
   if(old) old.remove();
 
   const score = r.score != null ? r.score : 0;
-  const scoreClass = score >= 80 ? 'laudo-score-ok' : 'laudo-score-nok';
-  const scoreColor = score >= 80 ? '#1D9E75' : '#E24B4A';
-  const statusText = r.status === 'concluida' ? (score >= 80 ? 'APROVADO' : 'REPROVADO') : 'RASCUNHO';
+  const isConcluida = r.status === 'concluida';
+  const isOk = score >= 80;
+  const scoreClass = !isConcluida ? 'lscore-warn' : isOk ? 'lscore-ok' : 'lscore-nok';
+  const scoreColor = !isConcluida ? '#BA7517' : isOk ? '#1D9E75' : '#E24B4A';
+  const statusText = !isConcluida ? 'EM ANDAMENTO' : isOk ? 'APROVADO' : 'REPROVADO';
+  const now = new Date().toLocaleString('pt-BR');
+  const docNum = 'QA-' + r.data?.replace(/-/g,'') + '-' + (r.id?.slice(-4)||'0000');
 
   function badge(v){
-    if(v==='ok') return '<span class="laudo-badge lb-ok">OK</span>';
-    if(v==='nok') return '<span class="laudo-badge lb-nok">NOK</span>';
-    if(v==='na') return '<span class="laudo-badge lb-na">N/A</span>';
-    return '<span class="laudo-badge lb-nd">—</span>';
+    if(v==='ok') return '<span class="lbadge lb-ok">✓ OK</span>';
+    if(v==='nok') return '<span class="lbadge lb-nok">✗ NOK</span>';
+    if(v==='na') return '<span class="lbadge lb-na">N/A</span>';
+    return '<span class="lbadge lb-nd">—</span>';
   }
 
+  // Build checklist HTML
   let secNum = 0;
-  let sections = '';
-  let lastSecEl = '';
-  let hasOpenSec = false;
+  let secHtml = '';
+  let curSec = '';
+  let openSec = false;
 
   CHECKLIST.forEach(group => {
     if(group.sec){
-      if(hasOpenSec) sections += lastSecEl + '</div>';
+      if(openSec) secHtml += curSec + '</div>';
       secNum++;
-      lastSecEl = `<div class="laudo-section"><div class="laudo-sec-title">${secNum}. ${group.sec}</div>`;
-      hasOpenSec = true;
+      curSec = `<div class="lsec"><div class="lsec-title"><span class="lsec-num">${secNum}</span>${group.sec}</div>`;
+      openSec = true;
     }
     if(group.sub){
-      lastSecEl += `<div class="laudo-sub-title">${group.sub}</div>`;
+      curSec += `<div class="lsubsec">${group.sub}</div>`;
     }
     group.items.forEach(item => {
       const k = itemKey(item);
       const v = r.answers?.[k] || '';
       const obs = r.answers?.[k+'_obs'] || '';
-      lastSecEl += `<div class="laudo-item">
-        <div class="laudo-item-name">${item}${obs ? `<div class="laudo-item-obs">↳ ${obs}</div>` : ''}</div>
+      const rowClass = v==='nok'?'litem-nok-row':obs&&v==='ok'?'litem-ok-obs':'';
+      curSec += `<div class="litem ${rowClass}">
+        <div class="litem-name">${item}${obs?`<div class="litem-obs">${v==='nok'?'⚠':'📝'} ${obs}</div>`:''}</div>
         ${badge(v)}
       </div>`;
     });
   });
-  if(hasOpenSec) sections += lastSecEl + '</div>';
+  if(openSec) secHtml += curSec + '</div>';
 
-  const scrapBlock = r.scrap ? `
-    <div class="laudo-obs-box">
-      <strong>Observações / Scrap / Diário de Bordo</strong>
-      ${r.scrap}
+  const scrapHtml = r.scrap ? `
+    <div class="lobs">
+      <div class="lobs-title">Scrap / Diário de Bordo / Ocorrências</div>
+      ${r.scrap.replace(/\n/g,'<br>')}
     </div>` : '';
 
-  const now = new Date().toLocaleString('pt-BR');
+  // Count items with obs (OK with note)
+  const okWithObs = CHECKLIST.flatMap(g=>g.items).filter(item=>{
+    const k=itemKey(item);
+    return r.answers?.[k]==='ok' && r.answers?.[k+'_obs'];
+  }).length;
 
   const laudo = document.createElement('div');
   laudo.id = 'laudo-print';
   laudo.className = 'print-only laudo-wrap';
   laudo.innerHTML = `
-    <div class="laudo-header">
-      <div class="laudo-logo-row">
-        <div>
-          <div class="laudo-title">Laudo Técnico de Auditoria de Qualidade</div>
-          <div class="laudo-sub">RÖCHLING AUTOMOTIVE · COLETOR TSI 1.0 PL7 · QA PROCESSO</div>
+    <!-- HEADER -->
+    <div class="lh">
+      <div class="lh-top">
+        <div class="lh-logo">
+          <div class="lh-icon">
+            <svg width="22" height="22" viewBox="0 0 20 20" fill="none">
+              <rect x="2" y="2" width="16" height="16" rx="3" stroke="white" stroke-width="1.5"/>
+              <path d="M5 10.5L8 13.5L15 7" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="lh-title">Laudo Técnico de Auditoria</div>
+            <div class="lh-sub">RÖCHLING AUTOMOTIVE · QA PROCESSO · COLETOR TSI 1.0 PL7</div>
+          </div>
         </div>
-        <div style="text-align:right;font-size:10px;color:#b4b2a9;font-family:'IBM Plex Mono',monospace">
-          <div>Emitido em ${now}</div>
-          <div style="margin-top:2px">Doc Nº QA-${r.id?.slice(-6)||'000000'}</div>
+        <div class="lh-doc">
+          <strong>${docNum}</strong>
+          Emitido: ${now}
         </div>
       </div>
     </div>
 
-    <div class="laudo-meta">
-      <div class="laudo-meta-item"><label>Inspetor</label><span>${r.insp}</span></div>
-      <div class="laudo-meta-item"><label>Data</label><span>${fmtDate(r.data)}</span></div>
-      <div class="laudo-meta-item"><label>Turno</label><span>Turno ${r.turno}</span></div>
-      <div class="laudo-meta-item"><label>Total de itens</label><span>${r.total}</span></div>
+    <!-- META -->
+    <div class="lmeta">
+      <div class="lmeta-item"><div class="lmeta-label">Inspetor</div><div class="lmeta-val">${r.insp}</div></div>
+      <div class="lmeta-item"><div class="lmeta-label">Data</div><div class="lmeta-val">${fmtDate(r.data)}</div></div>
+      <div class="lmeta-item"><div class="lmeta-label">Turno</div><div class="lmeta-val">Turno ${r.turno}</div></div>
+      <div class="lmeta-item"><div class="lmeta-label">Total itens</div><div class="lmeta-val">${r.total}</div></div>
+      <div class="lmeta-item"><div class="lmeta-label">Situação</div><div class="lmeta-val" style="color:${scoreColor};font-weight:600">${statusText}</div></div>
     </div>
 
-    <div class="laudo-score-bar ${scoreClass}">
-      <div class="laudo-score-num" style="color:${scoreColor}">${score}%</div>
-      <div>
-        <div style="font-size:14px;font-weight:600;color:${scoreColor}">${statusText}</div>
-        <div class="laudo-score-label">${r.ok} itens OK · ${r.nok} itens NOK · ${r.na} N/A</div>
+    <!-- SCORE BANNER -->
+    <div class="lscore ${scoreClass}">
+      <div class="lscore-num" style="color:${scoreColor}">${isConcluida?score+'%':'—'}</div>
+      <div class="lscore-info">
+        <div class="ls-status" style="color:${scoreColor}">${statusText}</div>
+        <div class="ls-detail">${r.ok} itens conformes · ${r.nok} não conformidades · ${r.na} não aplicáveis${okWithObs>0?' · '+okWithObs+' observações':''}</div>
+      </div>
+      <div class="lscore-chips">
+        <span class="lchip lchip-ok">${r.ok} OK</span>
+        <span class="lchip lchip-nok">${r.nok} NOK</span>
+        <span class="lchip lchip-na">${r.na} N/A</span>
       </div>
     </div>
 
-    ${scrapBlock}
+    ${scrapHtml}
+    ${secHtml}
 
-    ${sections}
-
-    <div class="laudo-footer">
-      <div>
-        <div>Sistema QA Röchling · welkaka-bit.github.io/qa-rochling</div>
-        <div style="margin-top:2px">Documento gerado automaticamente em ${now}</div>
+    <!-- FOOTER -->
+    <div class="lfooter">
+      <div class="lfooter-left">
+        <div><strong style="color:#1a1a18">Röchling Automotive</strong> · Sistema QA Digital</div>
+        <div>welkaka-bit.github.io/qa-rochling</div>
+        <div>Documento gerado em ${now} · Ref: ${docNum}</div>
       </div>
-      <div style="display:flex;gap:40px">
-        <div class="laudo-assin">
-          <div>${r.insp}</div>
-          <div>Inspetor responsável</div>
+      <div class="lsign-row">
+        <div class="lsign">
+          <div class="lsign-line">${r.insp}<br/>Inspetor Responsável</div>
         </div>
-        <div class="laudo-assin">
-          <div style="height:24px"></div>
-          <div>Supervisor / Aprovação</div>
+        <div class="lsign">
+          <div class="lsign-line">&nbsp;<br/>Supervisor / Visto</div>
+        </div>
+        <div class="lsign">
+          <div class="lsign-line">&nbsp;<br/>Engenharia / Qualidade</div>
         </div>
       </div>
     </div>`;
 
   document.body.appendChild(laudo);
-  setTimeout(() => window.print(), 100);
+  setTimeout(() => window.print(), 150);
 }
-
 function exportDetailXLSX(){
   const r=DB.find(x=>x.id===currentId);
   if(!r) return;

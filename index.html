@@ -71,12 +71,12 @@ document.dispatchEvent(new Event('firebase-ready'));
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0c1410;--card:#141f18;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
-  --text:#e8f0eb;--muted:#6a8878;--hint:#3d5448;
-  --green:#1D9E75;--gbg:rgba(29,158,117,.12);--gdk:#9FE1CB;
-  --amber:#EF9F27;--abg:rgba(239,159,39,.12);
-  --red:#E24B4A;--rbg:rgba(226,75,74,.12);
-  --blue:#378ADD;--bbg:rgba(55,138,221,.12);
+  --bg:#f5f4f0;--card:#ffffff;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.15);
+  --text:#1a1a18;--muted:#73726c;--hint:#b4b2a9;
+  --green:#1D9E75;--gbg:#E1F5EE;--gdk:#0F6E56;
+  --amber:#BA7517;--abg:#FAEEDA;
+  --red:#A32D2D;--rbg:#FCEBEB;
+  --blue:#185FA5;--bbg:#E6F1FB;
   --ff:'IBM Plex Sans',sans-serif;--fm:'IBM Plex Mono',monospace;
 }
 body{font-family:var(--ff);background:var(--bg);color:var(--text);min-height:100vh}
@@ -84,7 +84,8 @@ button{font-family:var(--ff);cursor:pointer}
 input,select,textarea{font-family:var(--ff)}
 
 /* CONNECTING OVERLAY */
-#connecting{position:fixed;inset:0;background:rgba(10,18,14,.97);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.laudo-wrap{display:none}
+#connecting{position:fixed;inset:0;background:rgba(15,26,18,.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 #connecting .spin{width:36px;height:36px;border:3px solid rgba(29,158,117,.3);border-top-color:#1D9E75;border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #connecting p{color:rgba(255,255,255,.7);font-size:13px;font-family:var(--fm)}
@@ -92,7 +93,7 @@ input,select,textarea{font-family:var(--ff)}
 #connecting .sub-txt{color:rgba(255,255,255,.4);font-size:11px;font-family:var(--fm);letter-spacing:1px}
 
 /* HEADER */
-.hdr{background:#0a120e;border-bottom:1px solid rgba(255,255,255,.06);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(255,255,255,.06)}
+.hdr{background:#0f1a12;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;border-bottom:1px solid rgba(255,255,255,.06)}
 .hdr-l{display:flex;align-items:center;gap:12px}
 .hdr-logo{width:34px;height:34px;background:rgba(29,158,117,.15);border:1px solid rgba(29,158,117,.3);border-radius:8px;display:flex;align-items:center;justify-content:center}
 .hdr-logo svg{width:18px;height:18px}
@@ -122,7 +123,7 @@ input,select,textarea{font-family:var(--ff)}
 @media(max-width:680px){.kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:380px){.kpis{grid-template-columns:1fr 1fr}}
 .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;position:relative;overflow:hidden;transition:transform .15s}
-.kpi:hover{transform:translateY(-2px);border-color:var(--border2)}
+.kpi:hover{transform:translateY(-2px)}
 .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
 .kpi.blue::after{background:var(--blue)}.kpi.green::after{background:var(--green)}
 .kpi.red::after{background:#E24B4A}.kpi.amber::after{background:var(--amber)}
@@ -146,10 +147,10 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 .htbl th{padding:9px 10px;text-align:left;font-size:10px;font-family:var(--fm);color:var(--hint);letter-spacing:.8px;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
 .htbl td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle}
 .htbl tr:last-child td{border-bottom:none}
-.htbl tr:hover td{background:rgba(255,255,255,.03)}
+.htbl tr:hover td{background:#fafaf8}
 .pill{display:inline-block;font-size:10px;font-family:var(--fm);padding:3px 7px;border-radius:3px;white-space:nowrap}
-.p-ok{background:rgba(29,158,117,.15);color:#9FE1CB}.p-fail{background:rgba(226,75,74,.15);color:#F09595}
-.p-prog{background:rgba(55,138,221,.15);color:#85B7EB}.p-warn{background:rgba(239,159,39,.15);color:#FAC775}
+.p-ok{background:var(--gbg);color:var(--gdk)}.p-fail{background:var(--rbg);color:var(--red)}
+.p-prog{background:var(--bbg);color:var(--blue)}.p-warn{background:var(--abg);color:var(--amber)}
 .btn-sm{padding:5px 10px;border-radius:6px;font-size:11px;border:1px solid var(--border);background:var(--card);color:var(--text);transition:.15s;white-space:nowrap}
 .btn-sm:hover{background:var(--bg)}
 .btn-sm.danger{border-color:#fca5a5;color:var(--red)}.btn-sm.danger:hover{background:var(--rbg)}
@@ -160,32 +161,32 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 @media(max-width:560px){.form-header-grid{grid-template-columns:1fr}}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:11px;font-family:var(--fm);color:var(--muted);letter-spacing:.5px;text-transform:uppercase}
-.field input,.field select{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#0c1410;color:var(--text);outline:none;transition:.15s;-webkit-appearance:none}
+.field input,.field select{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);outline:none;transition:.15s;-webkit-appearance:none}
 .field input:focus,.field select:focus{border-color:var(--green);background:#fff}
 .section-block{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
-.section-hdr{padding:12px 16px;background:#0f1a14;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.section-hdr{padding:12px 16px;background:#f9f8f4;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
 .section-num{width:22px;height:22px;border-radius:5px;background:#0f1a12;color:#fff;font-size:10px;font-family:var(--fm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .section-title{font-size:13px;font-weight:500}
 .subsection{padding:0 16px}
-.subsection-title{font-size:11px;font-family:var(--fm);color:var(--hint);letter-spacing:.5px;text-transform:uppercase;padding:10px 0 6px;border-top:1px solid var(--border);margin-top:2px}
+.subsection-title{font-size:11px;font-family:var(--fm);color:var(--muted);letter-spacing:.5px;text-transform:uppercase;padding:10px 0 6px;border-top:1px solid var(--border);margin-top:2px}
 .subsection:first-of-type .subsection-title{border-top:none}
 .item-row{display:flex;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.04);gap:10px}
 .item-row:last-of-type{border-bottom:none}
 .item-name{flex:1;font-size:13px;color:var(--text);line-height:1.4}
 .toggle-group{display:flex;gap:3px;flex-shrink:0}
-.tog{padding:6px 11px;border-radius:6px;font-size:11px;font-family:var(--fm);border:1px solid var(--border);background:#0c1410;color:var(--muted);cursor:pointer;transition:.15s;user-select:none;-webkit-tap-highlight-color:transparent}
+.tog{padding:6px 11px;border-radius:6px;font-size:11px;font-family:var(--fm);border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;transition:.15s;user-select:none;-webkit-tap-highlight-color:transparent}
 .tog:active{transform:scale(.95)}
 .tog.ok.sel{background:var(--gbg);color:var(--gdk);border-color:#9FE1CB}
 .tog.nok.sel{background:var(--rbg);color:var(--red);border-color:#F7C1C1}
 .tog.na.sel{background:var(--bbg);color:var(--blue);border-color:#B5D4F4}
 .obs-row{display:none;padding-bottom:10px}
 .obs-row.visible{display:block}
-.obs-inp{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#0c1410;color:var(--text);resize:none;outline:none}
+.obs-inp{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);resize:none;outline:none}
 .obs-inp:focus{border-color:var(--amber);background:#fff}
 .scrap-area{padding:14px 16px}
-.scrap-area textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#0c1410;color:var(--text);resize:vertical;outline:none;min-height:80px}
+.scrap-area textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);resize:vertical;outline:none;min-height:80px}
 .scrap-area textarea:focus{border-color:var(--green);background:#fff}
-.progress-bar{background:rgba(255,255,255,.05);border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden}
+.progress-bar{background:#f1efe8;border-radius:4px;height:6px;margin-bottom:16px;overflow:hidden}
 .progress-fill{height:100%;background:var(--green);border-radius:4px;transition:width .4s ease}
 .progress-lbl{font-size:11px;font-family:var(--fm);color:var(--muted);margin-bottom:5px}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap}
@@ -201,18 +202,18 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 .page-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
 .page-top-r{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .page-title{font-size:15px;font-weight:500}
-.search-inp{padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#0c1410;color:var(--text);outline:none;width:200px}
+.search-inp{padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:var(--bg);color:var(--text);outline:none;width:200px}
 .search-inp:focus{border-color:var(--green);background:#fff}
 @media(max-width:500px){.search-inp{width:130px}}
 
 /* DETAIL */
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
 @media(max-width:500px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
-.sum-box{background:rgba(255,255,255,.04);border-radius:8px;padding:12px;text-align:center}
+.sum-box{background:var(--bg);border-radius:8px;padding:12px;text-align:center}
 .sum-val{font-size:20px;font-weight:500;font-family:var(--fm)}
 .sum-lbl{font-size:10px;color:var(--muted);font-family:var(--fm);margin-top:3px}
 .detail-section{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
-.detail-section-hdr{padding:11px 16px;background:#0f1a14;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px}
+.detail-section-hdr{padding:11px 16px;background:#f9f8f4;border-bottom:1px solid var(--border);font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px}
 .detail-item{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 16px;border-bottom:1px solid rgba(0,0,0,.04);font-size:13px;gap:10px}
 .detail-item:last-child{border-bottom:none}
 .detail-obs{font-size:11px;color:var(--amber);margin-top:3px}
@@ -220,7 +221,7 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 /* MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:16px}
 .modal-overlay.open{display:flex}
-.modal{background:#1a2820;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:22px;max-width:400px;width:100%}
+.modal{background:var(--card);border-radius:14px;padding:22px;max-width:400px;width:100%}
 .modal-title{font-size:15px;font-weight:500;margin-bottom:6px}
 .modal-desc{font-size:13px;color:var(--muted);margin-bottom:20px}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end}
@@ -246,6 +247,22 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
 .fab{display:none;position:fixed;bottom:24px;right:20px;width:52px;height:52px;background:var(--green);box-shadow:0 4px 20px rgba(29,158,117,.35);border:none;border-radius:50%;color:#fff;font-size:24px;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(29,158,117,.4);z-index:100;transition:.2s}
 .fab:active{transform:scale(.92)}
 @media(max-width:600px){.fab{display:flex}}
+
+/* ===== PRINT LAUDO ===== */
+@media print {
+  body{background:#fff!important;color:#000!important}
+  .hdr,.nav,.fab,.saving,.toast,.modal-overlay,
+  #page-dash,#page-hist,#page-nova,
+  .page-top-r .btn-secondary,
+  .page-top-r .btn-export,
+  .page-top-r .btn-primary{display:none!important}
+  #page-detail{display:block!important}
+  .print-only{display:block!important}
+  .no-print{display:none!important}
+  .main{padding:0!important;max-width:100%!important}
+  @page{size:A4;margin:15mm 12mm}
+}
+.print-only{display:none}
 </style>
 </head>
 <body>
@@ -439,9 +456,13 @@ table.htbl{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
     <div class="page-top">
       <div class="page-title">Detalhes</div>
       <div class="page-top-r">
-        <button class="btn-secondary" onclick="goPage('hist')">← Voltar</button>
-        <button class="btn-export" onclick="exportDetailXLSX()">Exportar XLSX</button>
-        <button class="btn-primary" onclick="editCurrent()" style="background:#0f1a12">Editar</button>
+        <button class="btn-secondary no-print" onclick="goPage('hist')">← Voltar</button>
+        <button class="btn-export no-print" onclick="exportDetailXLSX()">Exportar XLSX</button>
+        <button class="btn-export no-print" onclick="imprimirLaudo()" style="border-color:#1D9E75;color:#1D9E75">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4 6V2h8v4M4 12H2a1 1 0 01-1-1V7a1 1 0 011-1h12a1 1 0 011 1v4a1 1 0 01-1 1h-2M4 10h8v5H4v-5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Imprimir Laudo
+        </button>
+        <button class="btn-primary no-print" onclick="editCurrent()" style="background:#0f1a12">Editar</button>
       </div>
     </div>
     <div id="detail-content"></div>
@@ -971,7 +992,7 @@ function renderDash(){
   failEl.innerHTML=sorted.length?sorted.map(([name,cnt])=>`
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px">
       <div style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div>
-      <div style="flex:1.5;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden">
+      <div style="flex:1.5;height:6px;background:#f1efe8;border-radius:3px;overflow:hidden">
         <div style="width:${Math.round(cnt/maxF*100)}%;height:100%;background:#E24B4A;border-radius:3px"></div>
       </div>
       <div style="font-size:11px;font-family:var(--fm);color:var(--muted);min-width:18px;text-align:right">${cnt}</div>
@@ -1133,6 +1154,118 @@ function exportXLSX(){
   XLSX.utils.book_append_sheet(wb,ws,'Auditorias');
   XLSX.writeFile(wb,'QA_Rochling_Historico.xlsx');
   showToast('Exportado!','success');
+}
+
+function imprimirLaudo(){
+  const r = DB.find(x=>x.id===currentId);
+  if(!r) return;
+
+  // Remove laudo anterior se existir
+  const old = document.getElementById('laudo-print');
+  if(old) old.remove();
+
+  const score = r.score != null ? r.score : 0;
+  const scoreClass = score >= 80 ? 'laudo-score-ok' : 'laudo-score-nok';
+  const scoreColor = score >= 80 ? '#1D9E75' : '#E24B4A';
+  const statusText = r.status === 'concluida' ? (score >= 80 ? 'APROVADO' : 'REPROVADO') : 'RASCUNHO';
+
+  function badge(v){
+    if(v==='ok') return '<span class="laudo-badge lb-ok">OK</span>';
+    if(v==='nok') return '<span class="laudo-badge lb-nok">NOK</span>';
+    if(v==='na') return '<span class="laudo-badge lb-na">N/A</span>';
+    return '<span class="laudo-badge lb-nd">—</span>';
+  }
+
+  let secNum = 0;
+  let sections = '';
+  let lastSecEl = '';
+  let hasOpenSec = false;
+
+  CHECKLIST.forEach(group => {
+    if(group.sec){
+      if(hasOpenSec) sections += lastSecEl + '</div>';
+      secNum++;
+      lastSecEl = `<div class="laudo-section"><div class="laudo-sec-title">${secNum}. ${group.sec}</div>`;
+      hasOpenSec = true;
+    }
+    if(group.sub){
+      lastSecEl += `<div class="laudo-sub-title">${group.sub}</div>`;
+    }
+    group.items.forEach(item => {
+      const k = itemKey(item);
+      const v = r.answers?.[k] || '';
+      const obs = r.answers?.[k+'_obs'] || '';
+      lastSecEl += `<div class="laudo-item">
+        <div class="laudo-item-name">${item}${obs ? `<div class="laudo-item-obs">↳ ${obs}</div>` : ''}</div>
+        ${badge(v)}
+      </div>`;
+    });
+  });
+  if(hasOpenSec) sections += lastSecEl + '</div>';
+
+  const scrapBlock = r.scrap ? `
+    <div class="laudo-obs-box">
+      <strong>Observações / Scrap / Diário de Bordo</strong>
+      ${r.scrap}
+    </div>` : '';
+
+  const now = new Date().toLocaleString('pt-BR');
+
+  const laudo = document.createElement('div');
+  laudo.id = 'laudo-print';
+  laudo.className = 'print-only laudo-wrap';
+  laudo.innerHTML = `
+    <div class="laudo-header">
+      <div class="laudo-logo-row">
+        <div>
+          <div class="laudo-title">Laudo Técnico de Auditoria de Qualidade</div>
+          <div class="laudo-sub">RÖCHLING AUTOMOTIVE · COLETOR TSI 1.0 PL7 · QA PROCESSO</div>
+        </div>
+        <div style="text-align:right;font-size:10px;color:#b4b2a9;font-family:'IBM Plex Mono',monospace">
+          <div>Emitido em ${now}</div>
+          <div style="margin-top:2px">Doc Nº QA-${r.id?.slice(-6)||'000000'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="laudo-meta">
+      <div class="laudo-meta-item"><label>Inspetor</label><span>${r.insp}</span></div>
+      <div class="laudo-meta-item"><label>Data</label><span>${fmtDate(r.data)}</span></div>
+      <div class="laudo-meta-item"><label>Turno</label><span>Turno ${r.turno}</span></div>
+      <div class="laudo-meta-item"><label>Total de itens</label><span>${r.total}</span></div>
+    </div>
+
+    <div class="laudo-score-bar ${scoreClass}">
+      <div class="laudo-score-num" style="color:${scoreColor}">${score}%</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:${scoreColor}">${statusText}</div>
+        <div class="laudo-score-label">${r.ok} itens OK · ${r.nok} itens NOK · ${r.na} N/A</div>
+      </div>
+    </div>
+
+    ${scrapBlock}
+
+    ${sections}
+
+    <div class="laudo-footer">
+      <div>
+        <div>Sistema QA Röchling · welkaka-bit.github.io/qa-rochling</div>
+        <div style="margin-top:2px">Documento gerado automaticamente em ${now}</div>
+      </div>
+      <div style="display:flex;gap:40px">
+        <div class="laudo-assin">
+          <div>${r.insp}</div>
+          <div>Inspetor responsável</div>
+        </div>
+        <div class="laudo-assin">
+          <div style="height:24px"></div>
+          <div>Supervisor / Aprovação</div>
+        </div>
+      </div>
+    </div>`;
+
+  document.body.appendChild(laudo);
+  setTimeout(() => window.print(), 100);
 }
 
 function exportDetailXLSX(){
